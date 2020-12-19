@@ -1,36 +1,14 @@
 """
-package-name is utility to create sub process.
-
-Execute a shell script::
-
-    import pk3proc
-
-    # execute a shell script
-
-    returncode, out, err = pk3proc.shell_script('ls / | grep bin')
-    print returncode
-    print out
-    # output:
-    # > 0
-    # > bin
-    # > sbin
-
-Run a command::
-
-    # Unlike the above snippet, following statement does not start an sh process.
-    returncode, out, err = pk3proc.command('ls', 'a*', cwd='/usr/local')
+k3down2 is utility to convert markdown segment into easy to transfer media sucha images.
 
 """
 
-# from .proc import CalledProcessError
-# from .proc import ProcError
+__version__ = "0.1.1"
+__name__ = "k3down2"
 
-__version__ = "0.2.2"
-__name__ = "k3proc"
-
-from .proc import foo
-from .proc import SomeError
-
-class Bar(object):
-    def foo(self):
-        pass
+from .down2 import tex_to_zhihu_url
+from .down2 import tex_to_zhihu
+from .down2 import web_to_png
+from .down2 import download
+from .down2 import md_to_html
+from .down2 import md_to_png

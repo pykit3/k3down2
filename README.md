@@ -1,18 +1,24 @@
-# k3proc
+# k3down2
 
-[![Build Status](https://travis-ci.com/pykit3/k3proc.svg?branch=master)](https://travis-ci.com/pykit3/k3proc)
-[![Documentation Status](https://readthedocs.org/projects/k3proc/badge/?version=stable)](https://k3proc.readthedocs.io/en/stable/?badge=stable)
-[![Package](https://img.shields.io/pypi/pyversions/k3proc)](https://pypi.org/project/k3proc)
+[![Build Status](https://travis-ci.com/pykit3/k3down2.svg?branch=master)](https://travis-ci.com/pykit3/k3down2)
+![Python package](https://github.com/pykit3/k3down2/workflows/Python%20package/badge.svg)
+[![Documentation Status](https://readthedocs.org/projects/k3down2/badge/?version=stable)](https://k3down2.readthedocs.io/en/stable/?badge=stable)
+[![Package](https://img.shields.io/pypi/pyversions/k3down2)](https://pypi.org/project/k3down2)
 
-no desc
+convert markdown segment into easy to transfer media sucha images.
 
-k3proc is a component of [pykit3] project: a python3 toolkit set.
+k3down2 is a component of [pykit3] project: a python3 toolkit set.
+
+
+k3down2 is utility to convert markdown segment into easy to transfer media sucha images.
+
+
 
 
 # Install
 
 ```
-pip install k3proc
+pip install k3down2
 ```
 
 # Synopsis

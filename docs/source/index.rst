@@ -1,12 +1,12 @@
-.. tmpl documentation master file, created by
+.. k3down2 documentation master file, created by
    sphinx-quickstart on Thu May 14 16:58:55 2020.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-tmpl
+k3down2
 ============
 
-.. automodule:: tmpl
+.. automodule:: k3down2
 
 .. toctree::
    :maxdepth: 2
@@ -19,23 +19,13 @@ tmpl
 Documentation for the Code
 **************************
 
-Exceptions
-----------
-
-.. autoexception::  SomeError
-
-
-Classes
-----------
-
-.. autoclass::  Bar
-    :members:
-
-
 Functions
 ---------
 
-.. autofunction::  foo
+.. autofunction::  tex_to_zhihu
+.. autofunction::  tex_to_zhihu_url
+.. autofunction::  web_to_png
+.. autofunction::  download
 
 Indices and tables
 ==================
