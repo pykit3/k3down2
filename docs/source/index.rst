@@ -24,6 +24,7 @@ Functions
 
 .. autofunction::  tex_to_zhihu
 .. autofunction::  tex_to_zhihu_url
+.. autofunction::  tex_to_png
 .. autofunction::  web_to_png
 .. autofunction::  download
 .. autofunction::  md_to_html

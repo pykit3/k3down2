@@ -34,6 +34,8 @@ def tex_to_zhihu_url(tex, block):
     www.zhihu.com/equation is a public api to render tex into svg.
 
     Args:
+        tex(str): tex source
+
         block(bool): whether to render a block(center-aligned) equation or
             inline equation.
 
@@ -63,6 +65,8 @@ def tex_to_zhihu(tex, block):
     www.zhihu.com/equation is a public api to render tex into svg.
 
     Args:
+        tex(str): tex source
+
         block(bool): whether to render a block(center-aligned) equation or
             inline equation.
 
@@ -89,6 +93,33 @@ def tex_to_zhihu(tex, block):
     )
 
     return url
+
+
+def tex_to_png(tex, block, outputfn=None):
+    '''
+    Convert tex source to a png.
+
+    Args:
+        tex(str): tex source
+
+        block(bool): whether to render a block(center-aligned) equation or
+            inline equation.
+
+        outputfn(str): specifies the output path. By default it is None.
+
+    Returns:
+        bytes of png data.
+    '''
+
+    tmpfn = 'tex_to_png.svg'
+    url = tex_to_zhihu_url(tex, block)
+    download(url, outputfn=tmpfn)
+    data = web_to_png(tmpfn)
+    if outputfn is not None:
+        with open(outputfn, 'wb') as f:
+            f.write(data)
+
+    return data
 
 
 def download(url, outputfn=None):
@@ -199,6 +230,15 @@ html_style = '''
 
 
 def md_to_html(md):
+    '''
+    Build markdown source into html.
+
+    Args:
+        md(str): markdown source.
+
+    Returns:
+        str of html
+    '''
 
     _, html, _ = k3proc.command_ex(
         "pandoc",
@@ -211,6 +251,15 @@ def md_to_html(md):
 
 
 def md_to_png(md):
+    '''
+    Build markdown source into html screenshot in png.
+
+    Args:
+        md(str): markdown source.
+
+    Returns:
+        bytes of png data.
+    '''
 
     html = md_to_html(md)
 
@@ -222,6 +271,15 @@ def md_to_png(md):
 
 
 def mdtable_to_barehtml(md):
+    '''
+    Build markdown table into html without style.
+
+    Args:
+        md(str): markdown source.
+
+    Returns:
+        str of html
+    '''
 
     _, html, _ = k3proc.command_ex(
         "pandoc",

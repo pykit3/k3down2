@@ -1,6 +1,7 @@
 import os
 import unittest
 import k3down2
+import k3proc
 
 import k3ut
 
@@ -46,6 +47,39 @@ X = \begin{bmatrix}
         for tex, block, want in cases:
             got = k3down2.tex_to_zhihu(tex, block)
             self.assertEqual(want, got)
+
+    def test_tex_to_png(self):
+        if is_ci():
+            return
+
+        tex = r'''
+X = \begin{bmatrix}
+1      & x_2    & x_2^2 \\
+
+\vdots & \vdots & \vdots \\
+
+1      & x_n    & x_n^2
+\end{bmatrix}
+'''.strip()
+
+        tmpfn = 'fff.png'
+        got = k3down2.tex_to_png(tex, False)
+        with open(tmpfn, 'wb') as f:
+            f.write(got)
+        _, typ, _ = k3proc.command_ex(
+            'file', tmpfn
+        )
+        self.assertIn('PNG', typ)
+
+        # output to a file
+
+        os.unlink(tmpfn)
+        got = k3down2.tex_to_png(tex, False, outputfn=tmpfn)
+        _, typ, _ = k3proc.command_ex(
+            'file', tmpfn
+        )
+        self.assertIn('PNG', typ)
+
 
     def test_tex_to_zhihu_url(self):
         big = r'''
