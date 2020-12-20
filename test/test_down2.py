@@ -107,6 +107,42 @@ X = \begin{bmatrix}
             got = f.read()
         self.assertEqual(want, got)
 
+    def test_mdtable_to_barehtml(self):
+
+        if is_ci():
+            return
+
+        md = r'''
+| a   | b   | b   |b   |
+| :-- | --: | :-: |--- |
+| c `foo | bar`   | d   | d   |d   |
+| e   | f   | f   |f   |
+'''
+        got = k3down2.mdtable_to_barehtml(md)
+        want = r'''
+<table>
+<tr class="header">
+<th style="text-align: left;">a</th>
+<th style="text-align: right;">b</th>
+<th style="text-align: center;">b</th>
+<th>b</th>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">c <code>foo | bar</code></td>
+<td style="text-align: right;">d</td>
+<td style="text-align: center;">d</td>
+<td>d</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">e</td>
+<td style="text-align: right;">f</td>
+<td style="text-align: center;">f</td>
+<td>f</td>
+</tr>
+</table>
+'''.strip()
+        self.assertEqual(want, got)
+
     def test_md_to_html(self):
 
         if is_ci():

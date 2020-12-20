@@ -26,6 +26,9 @@ Functions
 .. autofunction::  tex_to_zhihu_url
 .. autofunction::  web_to_png
 .. autofunction::  download
+.. autofunction::  md_to_html
+.. autofunction::  md_to_png
+.. autofunction::  mdtable_to_barehtml
 
 Indices and tables
 ==================

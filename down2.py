@@ -211,3 +211,18 @@ def md_to_png(md):
         f.write(html)
 
     return web_to_png(fn)
+
+def mdtable_to_barehtml(md):
+
+    _, html, _ = k3proc.command_ex(
+            "pandoc",
+            "-f", "markdown",
+            "-t", "html",
+            input=md,
+    )
+    lines = html.strip().split('\n')
+    lines = [x for x in lines
+        if x not in ('<thead>', '</thead>', '<tbody>', '</tbody>')
+    ]
+
+    return '\n'.join(lines)
