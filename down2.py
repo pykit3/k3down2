@@ -2,10 +2,13 @@
 # coding: utf-8
 
 import logging
-import sys
 import re
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.parse
+import urllib.error
+import urllib.request
+import urllib.error
+import urllib.parse
 
 #  from . import mistune
 
@@ -15,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 zhihu_equation_url_fmt = ('https://www.zhihu.com/equation'
                           '?tex={texurl}{align}'
-)
+                          )
 
 zhihu_equation_fmt = ('<img src="https://www.zhihu.com/equation'
                       '?tex={texurl}{align}"'
@@ -23,6 +26,7 @@ zhihu_equation_fmt = ('<img src="https://www.zhihu.com/equation'
                       ' class="ee_img'
                       ' tr_noresize"'
                       ' eeimg="1">')
+
 
 def tex_to_zhihu_url(tex, block):
     '''
@@ -46,14 +50,14 @@ def tex_to_zhihu_url(tex, block):
         align = ''
 
     url = zhihu_equation_url_fmt.format(
-            texurl=texurl,
-            align=align,
-            )
+        texurl=texurl,
+        align=align,
+    )
 
     return url
 
-def tex_to_zhihu(tex, block):
 
+def tex_to_zhihu(tex, block):
     '''
     Convert tex source to a img tag link to a svg on zhihu.
     www.zhihu.com/equation is a public api to render tex into svg.
@@ -78,13 +82,14 @@ def tex_to_zhihu(tex, block):
         altalign = ''
 
     url = zhihu_equation_fmt.format(
-            tex=tex,
-            texurl=texurl,
-            align=align,
-            altalign=altalign,
-            )
+        tex=tex,
+        texurl=texurl,
+        align=align,
+        altalign=altalign,
+    )
 
     return url
+
 
 def download(url, outputfn=None):
     '''
@@ -109,6 +114,7 @@ def download(url, outputfn=None):
 
     return datatowrite
 
+
 def web_to_png(pagefn, cwd=None):
     '''
     Render a web page, which could be html, svg etc into png and save it locally.
@@ -124,28 +130,28 @@ def web_to_png(pagefn, cwd=None):
         bytes of the png data
     '''
 
-
     k3proc.command_ex(
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "--headless",
-            "--screenshot",
-            "--window-size=1000,2000",
-            "--default-background-color=0",
-            pagefn,
-            cwd=cwd,
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        "--headless",
+        "--screenshot",
+        "--window-size=1000,2000",
+        "--default-background-color=0",
+        pagefn,
+        cwd=cwd,
     )
 
     # crop to visible area
     _, out, _ = k3proc.command_ex(
-            "convert",
-            "screenshot.png",
-            "-trim",
-            "+repage",
-            "png:-",
-            text=False,
-            cwd=cwd,
+        "convert",
+        "screenshot.png",
+        "-trim",
+        "+repage",
+        "png:-",
+        text=False,
+        cwd=cwd,
     )
     return out
+
 
 html_style = '''
 <style type="text/css" media="screen">
@@ -191,16 +197,18 @@ html_style = '''
 </style>
 '''
 
+
 def md_to_html(md):
 
     _, html, _ = k3proc.command_ex(
-            "pandoc",
-            "-f", "markdown",
-            "-t", "html",
-            input=md,
+        "pandoc",
+        "-f", "markdown",
+        "-t", "html",
+        input=md,
     )
 
     return html_style + html
+
 
 def md_to_png(md):
 
@@ -212,17 +220,18 @@ def md_to_png(md):
 
     return web_to_png(fn)
 
+
 def mdtable_to_barehtml(md):
 
     _, html, _ = k3proc.command_ex(
-            "pandoc",
-            "-f", "markdown",
-            "-t", "html",
-            input=md,
+        "pandoc",
+        "-f", "markdown",
+        "-t", "html",
+        input=md,
     )
     lines = html.strip().split('\n')
     lines = [x for x in lines
-        if x not in ('<thead>', '</thead>', '<tbody>', '</tbody>')
-    ]
+             if x not in ('<thead>', '</thead>', '<tbody>', '</tbody>')
+             ]
 
     return '\n'.join(lines)

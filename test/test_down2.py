@@ -1,6 +1,5 @@
 import os
 import unittest
-import hashlib
 import k3down2
 
 import k3ut
@@ -11,7 +10,6 @@ this_base = os.path.dirname(__file__)
 
 
 class TestTex(unittest.TestCase):
-
 
     def _clean(self):
         pass
@@ -33,16 +31,16 @@ X = \begin{bmatrix}
 \end{bmatrix}
 '''.strip()
         cases = [
-                (r'a = b', True,
-                 r'<img src="https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C" alt="a = b\\" class="ee_img tr_noresize" eeimg="1">'),
-                (r'a = b', False,
-                 r'<img src="https://www.zhihu.com/equation?tex=a%20%3D%20b" alt="a = b" class="ee_img tr_noresize" eeimg="1">'),
-                (big, True,
-                 r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
-                ),
-                (big, False,
-                 r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
-                ),
+            (r'a = b', True,
+             r'<img src="https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C" alt="a = b\\" class="ee_img tr_noresize" eeimg="1">'),
+            (r'a = b', False,
+             r'<img src="https://www.zhihu.com/equation?tex=a%20%3D%20b" alt="a = b" class="ee_img tr_noresize" eeimg="1">'),
+            (big, True,
+             r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
+             ),
+            (big, False,
+             r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
+             ),
         ]
 
         for tex, block, want in cases:
@@ -60,16 +58,16 @@ X = \begin{bmatrix}
 \end{bmatrix}
 '''.strip()
         cases = [
-                (r'a = b', True,
-                 r'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'),
-                (r'a = b', False,
-                 r'https://www.zhihu.com/equation?tex=a%20%3D%20b'),
-                (big, True,
-                 r'https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C',
-                ),
-                (big, False,
-                 r'https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D',
-                ),
+            (r'a = b', True,
+             r'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'),
+            (r'a = b', False,
+             r'https://www.zhihu.com/equation?tex=a%20%3D%20b'),
+            (big, True,
+             r'https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C',
+             ),
+            (big, False,
+             r'https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D',
+             ),
         ]
 
         for tex, block, want in cases:
@@ -90,7 +88,6 @@ X = \begin{bmatrix}
 
         #  just run, no check
         k3down2.web_to_png(fn, cwd='test/data')
-
 
     def test_download(self):
         url = 'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'
@@ -238,6 +235,7 @@ X = \begin{bmatrix}
         got = k3down2.md_to_png(md)
         with open('x.png', 'wb') as f:
             f.write(got)
+
 
 def is_ci():
     # github ci
