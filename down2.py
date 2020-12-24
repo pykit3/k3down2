@@ -9,6 +9,7 @@ import urllib.error
 import urllib.request
 import urllib.error
 import urllib.parse
+import sys
 
 #  from . import mistune
 
@@ -161,8 +162,12 @@ def web_to_png(pagefn, cwd=None):
         bytes of the png data
     '''
 
+    chrome = 'google-chrome'
+    if sys.platform == 'darwin':
+        # mac
+        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
     k3proc.command_ex(
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+        chrome,
         "--headless",
         "--screenshot",
         "--window-size=1000,2000",

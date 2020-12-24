@@ -50,8 +50,6 @@ X = \begin{bmatrix}
             self.assertEqual(want, got)
 
     def test_tex_to_png(self):
-        if is_ci():
-            return
 
         tex = r'''
 X = \begin{bmatrix}
@@ -108,10 +106,7 @@ X = \begin{bmatrix}
             got = k3down2.tex_to_zhihu_url(tex, block)
             self.assertEqual(want, got)
 
-    def test_web_to_bng(self):
-
-        if is_ci():
-            return
+    def test_web_to_png(self):
 
         fn = 'matrix.svg'
         outfn = 'matrix.png'
@@ -255,9 +250,6 @@ X = \begin{bmatrix}
         self.assertEqual(want, got)
 
     def test_md_to_png(self):
-
-        if is_ci():
-            return
 
         md = r'''
 | a   | b   | b   |b   |
