@@ -1,3 +1,4 @@
+import re
 import os
 import unittest
 import k3down2
@@ -80,7 +81,6 @@ X = \begin{bmatrix}
         )
         self.assertIn('PNG', typ)
 
-
     def test_tex_to_zhihu_url(self):
         big = r'''
 X = \begin{bmatrix}
@@ -140,9 +140,6 @@ X = \begin{bmatrix}
 
     def test_mdtable_to_barehtml(self):
 
-        if is_ci():
-            return
-
         md = r'''
 | a   | b   | b   |b   |
 | :-- | --: | :-: |--- |
@@ -172,12 +169,12 @@ X = \begin{bmatrix}
 </tr>
 </table>
 '''.strip()
+
+        want = normalize_pandoc_output(want, got)
+
         self.assertEqual(want, got)
 
     def test_md_to_html(self):
-
-        if is_ci():
-            return
 
         md = r'''
 | a   | b   | b   |b   |
@@ -253,6 +250,8 @@ X = \begin{bmatrix}
 </tbody>
 </table>
 '''
+        want = normalize_pandoc_output(want, got)
+
         self.assertEqual(want, got)
 
     def test_md_to_png(self):
@@ -269,6 +268,17 @@ X = \begin{bmatrix}
         got = k3down2.md_to_png(md)
         with open('x.png', 'wb') as f:
             f.write(got)
+
+
+def normalize_pandoc_output(want, got):
+    #  pandoc may output different style html:
+    #  '<tab[25 chars]n<th style="text-align: left;">a</th>\n<th sty[427 chars]ble>' !=
+    #  '<tab[25 chars]n<th align="left">a</th>\n<th align="right">b<[310 chars]ble>'
+
+    if 'align="' in got:
+        want = re.sub(r'style="text-align: (left|right|center);"',
+                      r'align="\1"', want)
+    return want
 
 
 def is_ci():
