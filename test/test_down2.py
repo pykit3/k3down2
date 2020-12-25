@@ -325,10 +325,28 @@ def normalize_pandoc_output(want, got):
     return want
 
 
-def cmp_image(a, b):
+def cmp_image(want, got):
 
-    img1 = skimage.img_as_float(skimage.io.imread(a))
-    img2 = skimage.img_as_float(skimage.io.imread(b))
+    da = skimage.io.imread(want)
+    db = skimage.io.imread(got)
+    if da.shape != db.shape:
+        k3proc.command_ex(
+            'convert',
+                # height then width
+                '-resize', '%dx%d!' % (da.shape[1], da.shape[0]),
+                got, got
+        )
+        db = skimage.io.imread(got)
+
+    img1 = skimage.img_as_float(da)
+    img2 = skimage.img_as_float(db)
+
+    print("img1:-------------", want)
+    print(img1.shape)
+    print(img1)
+    print("img2:-------------", got)
+    print(img2.shape)
+    print(img2)
 
     p = ssim(img1, img2, multichannel=True)
     return p
