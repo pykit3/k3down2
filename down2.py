@@ -3,17 +3,15 @@
 
 import logging
 import re
-import urllib.request
-import urllib.parse
-import urllib.error
-import urllib.request
-import urllib.error
-import urllib.parse
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+
+import k3proc
 
 #  from . import mistune
 
-import k3proc
 
 logger = logging.getLogger(__name__)
 

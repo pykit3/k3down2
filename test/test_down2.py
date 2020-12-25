@@ -1,10 +1,14 @@
-import re
 import os
+import re
 import unittest
-import k3down2
-import k3proc
 
+import k3proc
 import k3ut
+import skimage
+import skimage.io
+from skimage.metrics import structural_similarity as ssim
+
+import k3down2
 
 dd = k3ut.dd
 
@@ -108,15 +112,22 @@ X = \begin{bmatrix}
 
     def test_web_to_png(self):
 
-        fn = 'matrix.svg'
-        outfn = 'matrix.png'
+        d = 'test/data/svg_to_png_matrix'
+
         try:
-            os.unlink('test/data/' + outfn)
+            os.unlink(os.path.join(d, 'got.png'))
         except OSError:
             pass
 
         #  just run, no check
-        k3down2.web_to_png(fn, cwd='test/data')
+        data = k3down2.web_to_png('input.svg', cwd=d)
+        with open(os.path.join(d, 'got.png'), 'wb') as f:
+            f.write(data)
+
+        sim = cmp_image(os.path.join(d, 'want.png'),
+                        os.path.join(d, 'got.png')
+                        )
+        self.assertGreater(sim, 0.9)
 
     def test_download(self):
         url = 'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'
@@ -271,6 +282,15 @@ def normalize_pandoc_output(want, got):
         want = re.sub(r'style="text-align: (left|right|center);"',
                       r'align="\1"', want)
     return want
+
+
+def cmp_image(a, b):
+
+    img1 = skimage.img_as_float(skimage.io.imread(a))
+    img2 = skimage.img_as_float(skimage.io.imread(b))
+
+    p = ssim(img1, img1, multichannel=True)
+    return p
 
 
 def is_ci():
