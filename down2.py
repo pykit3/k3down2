@@ -96,13 +96,29 @@ def tex_to_zhihu(tex, block):
 
 def tex_to_png(tex, block, outputfn=None):
     '''
-    Convert tex source to a png.
+    Alias of ``tex_to_img(tex, block, "png", outputfn=outputfn)``
+    '''
+    return tex_to_img(tex, block, "png", outputfn=outputfn)
+
+
+def tex_to_jpg(tex, block, outputfn=None):
+    '''
+    Alias of ``tex_to_img(tex, block, "jpg", outputfn=outputfn)``
+    '''
+    return tex_to_img(tex, block, "jpg", outputfn=outputfn)
+
+
+def tex_to_img(tex, block, typ, outputfn=None):
+    '''
+    Convert tex source to an image.
 
     Args:
         tex(str): tex source
 
         block(bool): whether to render a block(center-aligned) equation or
             inline equation.
+
+        typ(str): output image type such as "png" or "jpg"
 
         outputfn(str): specifies the output path. By default it is None.
 
@@ -113,7 +129,7 @@ def tex_to_png(tex, block, outputfn=None):
     tmpfn = 'tex_to_png.svg'
     url = tex_to_zhihu_url(tex, block)
     download(url, outputfn=tmpfn)
-    data = web_to_png(tmpfn)
+    data = web_to_img(tmpfn, typ)
     if outputfn is not None:
         with open(outputfn, 'wb') as f:
             f.write(data)
@@ -148,20 +164,18 @@ def download(url, outputfn=None):
 def web_to_png(pagefn, cwd=None):
 
     '''
-    Render a web page, which could be html, svg etc into png.
-    It uses a headless chrome to render the page.
-    Requirement: Chrome, imagemagick
-
-    Args:
-        pagefn(string): path to a local file that can be rendered by chrome.
-
-        cwd(string): path to the working dir. By default it is None.
-
-    Returns:
-        bytes of the png data
+    Alias of ``web_to_img(pagefn, typ="png", cwd=cwd)``.
     '''
 
     return web_to_img(pagefn, "png", cwd=cwd)
+
+def web_to_jpg(pagefn, cwd=None):
+
+    '''
+    Alias of ``web_to_img(pagefn, typ="jpg", cwd=cwd)``.
+    '''
+
+    return web_to_img(pagefn, "jpg", cwd=cwd)
 
 
 def web_to_img(pagefn, typ, cwd=None):
@@ -207,8 +221,8 @@ def web_to_img(pagefn, typ, cwd=None):
         "screenshot.png",
         "-trim",
         "+repage",
-        typ + ":-",
         *moreargs,
+        typ + ":-",
         text=False,
         cwd=cwd,
     )

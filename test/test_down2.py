@@ -53,7 +53,9 @@ X = \begin{bmatrix}
             got = k3down2.tex_to_zhihu(tex, block)
             self.assertEqual(want, got)
 
-    def test_tex_to_png(self):
+    def test_tex_to_img(self):
+
+        d = 'test/data/tex_to_img_matrix'
 
         tex = r'''
 X = \begin{bmatrix}
@@ -65,23 +67,37 @@ X = \begin{bmatrix}
 \end{bmatrix}
 '''.strip()
 
-        tmpfn = 'fff.png'
+        tmpfn = pjoin(d, 'got.png')
+        rm(tmpfn)
+
         got = k3down2.tex_to_png(tex, False)
-        with open(tmpfn, 'wb') as f:
-            f.write(got)
+        fwrite(tmpfn, got)
         _, typ, _ = k3proc.command_ex(
             'file', tmpfn
         )
         self.assertIn('PNG', typ)
+        rm(tmpfn)
 
         # output to a file
 
-        os.unlink(tmpfn)
         got = k3down2.tex_to_png(tex, False, outputfn=tmpfn)
         _, typ, _ = k3proc.command_ex(
             'file', tmpfn
         )
         self.assertIn('PNG', typ)
+        rm(tmpfn)
+
+
+        for typ in ('jpg', 'png'):
+            wantfn = 'want.' + typ
+            gotfn = 'got.' + typ
+            rm(pjoin(d, gotfn))
+
+            k3down2.tex_to_img(tex, False, typ, outputfn=pjoin(d, gotfn))
+            sim = cmp_image(pjoin(d, wantfn), pjoin(d, gotfn))
+            self.assertGreater(sim, 0.9)
+
+            rm(pjoin(d, gotfn))
 
     def test_tex_to_zhihu_url(self):
         big = r'''
@@ -114,20 +130,33 @@ X = \begin{bmatrix}
 
         d = 'test/data/svg_to_png_matrix'
 
-        try:
-            os.unlink(os.path.join(d, 'got.png'))
-        except OSError:
-            pass
+        for typ, func in [('png', k3down2.web_to_png),
+                          ('jpg', k3down2.web_to_jpg),
+        ]:
 
-        #  just run, no check
-        data = k3down2.web_to_png('input.svg', cwd=d)
-        with open(os.path.join(d, 'got.png'), 'wb') as f:
-            f.write(data)
+            wantfn = 'want.' + typ
+            gotfn = 'got.' + typ
+            rm(d, gotfn)
 
-        sim = cmp_image(os.path.join(d, 'want.png'),
-                        os.path.join(d, 'got.png')
-                        )
-        self.assertGreater(sim, 0.9)
+            data = func('input.svg', cwd=d)
+            fwrite(d, gotfn, data)
+
+            sim = cmp_image(os.path.join(d, wantfn),
+                            os.path.join(d, gotfn))
+            self.assertGreater(sim, 0.9)
+            rm(d, gotfn)
+
+            # web_to_img
+
+            rm(d, gotfn)
+            data = k3down2.web_to_img('input.svg', typ, cwd=d)
+            fwrite(d, gotfn, data)
+
+            sim = cmp_image(os.path.join(d, wantfn),
+                            os.path.join(d, gotfn))
+            self.assertGreater(sim, 0.9)
+            rm(d, gotfn)
+
 
     def test_download(self):
         url = 'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'
@@ -291,6 +320,24 @@ def cmp_image(a, b):
 
     p = ssim(img1, img1, multichannel=True)
     return p
+
+
+def pjoin(*p):
+    return os.path.join(*p)
+
+
+def rm(*p):
+
+    try:
+        os.unlink(os.path.join(*p))
+    except OSError:
+        pass
+
+def fwrite(*p):
+    cont = p[-1]
+    p = p[:-1]
+    with open(os.path.join(*p), 'wb') as f:
+        f.write(cont)
 
 
 def is_ci():
