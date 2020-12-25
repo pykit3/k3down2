@@ -146,13 +146,34 @@ def download(url, outputfn=None):
 
 
 def web_to_png(pagefn, cwd=None):
+
     '''
-    Render a web page, which could be html, svg etc into png and save it locally.
+    Render a web page, which could be html, svg etc into png.
     It uses a headless chrome to render the page.
     Requirement: Chrome, imagemagick
 
     Args:
         pagefn(string): path to a local file that can be rendered by chrome.
+
+        cwd(string): path to the working dir. By default it is None.
+
+    Returns:
+        bytes of the png data
+    '''
+
+    return web_to_img(pagefn, "png", cwd=cwd)
+
+
+def web_to_img(pagefn, typ, cwd=None):
+    '''
+    Render a web page, which could be html, svg etc into image.
+    It uses a headless chrome to render the page.
+    Requirement: Chrome, imagemagick
+
+    Args:
+        pagefn(string): path to a local file that can be rendered by chrome.
+
+        typ(string): specify output image type such as "png", "jpg"
 
         cwd(string): path to the working dir. By default it is None.
 
@@ -174,16 +195,24 @@ def web_to_png(pagefn, cwd=None):
         cwd=cwd,
     )
 
+    if typ == 'png':
+        moreargs = []
+    else:
+        # flatten alpha channel
+        moreargs = ['-background',  'white',  '-flatten',  '-alpha',  'off']
+
     # crop to visible area
     _, out, _ = k3proc.command_ex(
         "convert",
         "screenshot.png",
         "-trim",
         "+repage",
-        "png:-",
+        typ + ":-",
+        *moreargs,
         text=False,
         cwd=cwd,
     )
+
     return out
 
 
