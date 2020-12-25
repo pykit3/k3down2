@@ -14,6 +14,7 @@ __name__ = "k3down2"
 
 from .down2 import tex_to_zhihu_url
 from .down2 import tex_to_zhihu
+from .down2 import tex_to_plain
 from .down2 import tex_to_img
 from .down2 import tex_to_jpg
 from .down2 import tex_to_png

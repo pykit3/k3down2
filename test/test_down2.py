@@ -53,6 +53,20 @@ X = \begin{bmatrix}
             got = k3down2.tex_to_zhihu(tex, block)
             self.assertEqual(want, got)
 
+    def test_tex_to_plain(self):
+        case = [
+            (r'_1', '₁'),
+            (r'a_1 + b^2', 'a₁ + b²'),
+            (r'b^3 a_z pp', 'b³ a_z pp'),
+            (r'\mathbb{Q}^3', 'ℚ³'),
+            (r'\mathbb{Q}^{x+1}', 'ℚˣ⁺¹'),
+            (r'\sum_{1}^{x+1}(i^2)', '∑₁ˣ⁺¹(i²)'),
+        ]
+
+        for inp, want in case:
+            got = k3down2.tex_to_plain(inp)
+            self.assertEqual(want, got, inp)
+
     def test_tex_to_img(self):
 
         d = 'test/data/tex_to_img_matrix'
@@ -86,7 +100,6 @@ X = \begin{bmatrix}
         )
         self.assertIn('PNG', typ)
         rm(tmpfn)
-
 
         for typ in ('jpg', 'png'):
             wantfn = 'want.' + typ
@@ -132,7 +145,7 @@ X = \begin{bmatrix}
 
         for typ, func in [('png', k3down2.web_to_png),
                           ('jpg', k3down2.web_to_jpg),
-        ]:
+                          ]:
 
             wantfn = 'want.' + typ
             gotfn = 'got.' + typ
@@ -156,7 +169,6 @@ X = \begin{bmatrix}
                             os.path.join(d, gotfn))
             self.assertGreater(sim, 0.9)
             rm(d, gotfn)
-
 
     def test_download(self):
         url = 'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'
@@ -318,7 +330,7 @@ def cmp_image(a, b):
     img1 = skimage.img_as_float(skimage.io.imread(a))
     img2 = skimage.img_as_float(skimage.io.imread(b))
 
-    p = ssim(img1, img1, multichannel=True)
+    p = ssim(img1, img2, multichannel=True)
     return p
 
 
@@ -332,6 +344,7 @@ def rm(*p):
         os.unlink(os.path.join(*p))
     except OSError:
         pass
+
 
 def fwrite(*p):
     cont = p[-1]

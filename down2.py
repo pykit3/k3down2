@@ -7,6 +7,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
+from pylatexenc.latex2text import LatexNodes2Text
 
 import k3proc
 
@@ -94,6 +95,138 @@ def tex_to_zhihu(tex, block):
     return url
 
 
+superscripts = {
+    "0": "⁰",
+    "1": "¹",
+    "2": "²",
+    "3": "³",
+    "4": "⁴",
+    "5": "⁵",
+    "6": "⁶",
+    "7": "⁷",
+    "8": "⁸",
+    "9": "⁹",
+    "a": "ᵃ",
+    "b": "ᵇ",
+    "c": "ᶜ",
+    "d": "ᵈ",
+    "e": "ᵉ",
+    "f": "ᶠ",
+    "g": "ᵍ",
+    "h": "ʰ",
+    "i": "ⁱ",
+    "j": "ʲ",
+    "k": "ᵏ",
+    "l": "ˡ",
+    "m": "ᵐ",
+    "n": "ⁿ",
+    "o": "ᵒ",
+    "p": "ᵖ",
+    "r": "ʳ",
+    "s": "ˢ",
+    "t": "ᵗ",
+    "u": "ᵘ",
+    "v": "ᵛ",
+    "w": "ʷ",
+    "x": "ˣ",
+    "y": "ʸ",
+    "z": "ᶻ",
+    "A": "ᴬ",
+    "B": "ᴮ",
+    "D": "ᴰ",
+    "E": "ᴱ",
+    "G": "ᴳ",
+    "H": "ᴴ",
+    "I": "ᴵ",
+    "J": "ᴶ",
+    "K": "ᴷ",
+    "L": "ᴸ",
+    "M": "ᴹ",
+    "N": "ᴺ",
+    "O": "ᴼ",
+    "P": "ᴾ",
+    "R": "ᴿ",
+    "T": "ᵀ",
+    "U": "ᵁ",
+    "V": "ⱽ",
+    "W": "ᵂ",
+    "+": "⁺",
+    "-": "⁻",
+    "=": "⁼",
+    "(": "⁽",
+    ")": "⁾",
+}
+
+subscripts = {
+    "0": "₀",
+    "1": "₁",
+    "2": "₂",
+    "3": "₃",
+    "4": "₄",
+    "5": "₅",
+    "6": "₆",
+    "7": "₇",
+    "8": "₈",
+    "9": "₉",
+    "+": "₊",
+    "-": "₋",
+    "=": "₌",
+    "(": "₍",
+    ")": "₎",
+    "b": "ᵦ",
+    "g": "ᵧ",
+    "a": "ₐ",
+    "e": "ₑ",
+    "i": "ᵢ",
+    "j": "ⱼ",
+    "o": "ₒ",
+    "r": "ᵣ",
+    "u": "ᵤ",
+    "v": "ᵥ",
+    "x": "ₓ",
+
+}
+
+
+def all_in(chars, cate):
+    for c in chars:
+        if c not in cate:
+            return False
+    return True
+
+
+def tex_to_plain(tex):
+    '''
+    Try hard converting tex to unicode plain text.
+    '''
+
+    for reg, cate in (
+            (r'_\{([^}]*?)\}', subscripts),
+            (r'[\^]\{([^}]*?)\}', superscripts),
+            (r'_(.)', subscripts),
+            (r'[\^](.)', superscripts),
+    ):
+        pieces = []
+        while True:
+            match = re.search(reg, tex, flags=re.DOTALL | re.UNICODE)
+            if match:
+                chars = match.groups()[0]
+                if all_in(chars, cate):
+                    chars = [cate[x] for x in chars]
+                else:
+                    chars = tex[match.start():match.end()]
+                pieces.append(tex[:match.start()])
+                pieces.append(''.join(chars))
+                tex = tex[match.end():]
+            else:
+                pieces.append(tex)
+                break
+
+        tex = ''.join(pieces)
+
+    return LatexNodes2Text().latex_to_text(tex)
+
+
 def tex_to_png(tex, block, outputfn=None):
     '''
     Alias of ``tex_to_img(tex, block, "png", outputfn=outputfn)``
@@ -162,15 +295,14 @@ def download(url, outputfn=None):
 
 
 def web_to_png(pagefn, cwd=None):
-
     '''
     Alias of ``web_to_img(pagefn, typ="png", cwd=cwd)``.
     '''
 
     return web_to_img(pagefn, "png", cwd=cwd)
 
-def web_to_jpg(pagefn, cwd=None):
 
+def web_to_jpg(pagefn, cwd=None):
     '''
     Alias of ``web_to_img(pagefn, typ="jpg", cwd=cwd)``.
     '''
@@ -213,7 +345,7 @@ def web_to_img(pagefn, typ, cwd=None):
         moreargs = []
     else:
         # flatten alpha channel
-        moreargs = ['-background',  'white',  '-flatten',  '-alpha',  'off']
+        moreargs = ['-background', 'white', '-flatten', '-alpha', 'off']
 
     # crop to visible area
     _, out, _ = k3proc.command_ex(
