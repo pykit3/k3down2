@@ -5,6 +5,7 @@ It depends on:
 - pandoc to render markdown snippet to html, such as tables.
 - google-chrome to render svg/html to png.
 - imagemagick to process images.
+- mmdc to convert mermaid chart to svg. See: https://mermaid-js.github.io/mermaid/#
 
 
 """
@@ -21,7 +22,14 @@ from .down2 import tex_to_png
 from .down2 import web_to_img
 from .down2 import web_to_jpg
 from .down2 import web_to_png
+
 from .down2 import download
+
+from .down2 import mermaid_to_svg
+from .down2 import mermaid_to_img
+from .down2 import mermaid_to_png
+from .down2 import mermaid_to_jpg
+
 from .down2 import md_to_html
 from .down2 import md_to_png
 from .down2 import mdtable_to_barehtml

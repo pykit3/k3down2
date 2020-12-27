@@ -27,6 +27,9 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f test-requirements.txt ]; then pip install -r test-requirements.txt; fi
+    - name: Install npm dependencies
+      run: |
+        if [ -f package.json ]; then npm install; fi
     - name: Install apt dependencies
       run: |
         if [ -f packages.txt ]; then cat packages.txt | xargs sudo apt-get install; fi
@@ -38,4 +41,9 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        PYTHONPATH="$(cd ..; pwd)" pytest
+        PATH="$PATH:$(npm bin)" PYTHONPATH="$(cd ..; pwd)" pytest
+
+    # - uses: actions/upload-artifact@v2
+    #   if: failure()
+    #   with:
+    #     path: test/data/mermaid/

@@ -22,14 +22,26 @@ Documentation for the Code
 Functions
 ---------
 
-.. autofunction::  tex_to_zhihu
-.. autofunction::  tex_to_zhihu_url
-.. autofunction::  tex_to_png
-.. autofunction::  web_to_png
-.. autofunction::  download
-.. autofunction::  md_to_html
-.. autofunction::  md_to_png
-.. autofunction::  mdtable_to_barehtml
+.. autofunction:: tex_to_zhihu_url
+.. autofunction:: tex_to_zhihu
+.. autofunction:: tex_to_plain
+.. autofunction:: tex_to_img
+.. autofunction:: tex_to_jpg
+.. autofunction:: tex_to_png
+.. autofunction:: web_to_img
+.. autofunction:: web_to_jpg
+.. autofunction:: web_to_png
+
+.. autofunction:: download
+
+.. autofunction:: mermaid_to_svg
+.. autofunction:: mermaid_to_img
+.. autofunction:: mermaid_to_png
+.. autofunction:: mermaid_to_jpg
+
+.. autofunction:: md_to_html
+.. autofunction:: md_to_png
+.. autofunction:: mdtable_to_barehtml
 
 Indices and tables
 ==================

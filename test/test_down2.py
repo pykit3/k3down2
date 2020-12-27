@@ -1,4 +1,5 @@
 import os
+import tempfile
 import re
 import unittest
 
@@ -313,6 +314,28 @@ X = \begin{bmatrix}
         with open('x.png', 'wb') as f:
             f.write(got)
 
+    def test_mermaid_to_xxx(self):
+
+        d = 'test/data/mermaid'
+
+        mmd = fread(d, 'input.mmd')
+
+        for typ, func in (
+            ('jpg', k3down2.mermaid_to_jpg),
+            ('png', k3down2.mermaid_to_png),
+        ):
+
+            got = func(mmd)
+
+            with tempfile.TemporaryDirectory() as tdir:
+                gotfn = pjoin(tdir, 'got.' + typ)
+                with open(gotfn, 'wb') as f:
+                    f.write(got)
+
+                wantfn = pjoin(d, 'want.' + typ)
+                sim = cmp_image(wantfn, gotfn)
+                self.assertGreater(sim, 0.8)
+
 
 def normalize_pandoc_output(want, got):
     #  pandoc may output different style html:
@@ -332,9 +355,9 @@ def cmp_image(want, got):
     if da.shape != db.shape:
         k3proc.command_ex(
             'convert',
-                # height then width
-                '-resize', '%dx%d!' % (da.shape[1], da.shape[0]),
-                got, got
+            # height then width
+            '-resize', '%dx%d!' % (da.shape[1], da.shape[0]),
+            got, got
         )
         db = skimage.io.imread(got)
 
@@ -362,6 +385,11 @@ def rm(*p):
         os.unlink(os.path.join(*p))
     except OSError:
         pass
+
+
+def fread(*p):
+    with open(os.path.join(*p), 'r') as f:
+        return f.read()
 
 
 def fwrite(*p):

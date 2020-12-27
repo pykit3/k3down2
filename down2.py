@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
+import tempfile
 import logging
 import re
 import sys
@@ -471,3 +473,44 @@ def mdtable_to_barehtml(md):
              ]
 
     return '\n'.join(lines)
+
+
+def mermaid_to_svg(mmd, outputfn):
+    """
+    Render mermaid to svg.
+    See: https://mermaid-js.github.io/mermaid/#
+
+    Requires:
+        npm install @mermaid-js/mermaid-cli
+    """
+
+    k3proc.command_ex(
+        "mmdc",
+        "-o", outputfn,
+        input=mmd,
+    )
+
+
+def mermaid_to_img(mmd, typ, cwd=None):
+    """
+    Render mermaid to image.
+    """
+
+    with tempfile.TemporaryDirectory() as tdir:
+        p = os.path.join(tdir, "mmd.svg")
+        mermaid_to_svg(mmd, p)
+        return web_to_img(p, typ, cwd=cwd)
+
+
+def mermaid_to_jpg(mmd, cwd=None):
+    """
+    Alias to mermaid_to_img(mmd, "jpg", cwd=cwd)
+    """
+    return mermaid_to_img(mmd, 'jpg', cwd=cwd)
+
+
+def mermaid_to_png(mmd, cwd=None):
+    """
+    Alias to mermaid_to_img(mmd, "png", cwd=cwd)
+    """
+    return mermaid_to_img(mmd, 'png', cwd=cwd)
