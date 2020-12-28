@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import base64
 import os
 import tempfile
 import logging
@@ -12,6 +13,7 @@ import urllib.request
 from pylatexenc.latex2text import LatexNodes2Text
 
 import k3proc
+from .mime import mimetypes
 
 #  from . import mistune
 
@@ -364,6 +366,64 @@ def web_to_img(pagefn, typ, cwd=None):
     return out
 
 
+def render_to_img(mime, input, typ):
+    '''
+    Render content that is renderable in chrome to image.
+    Such as html, svg etc into image.
+    It uses a headless chrome to render the page.
+    Requirement: Chrome, imagemagick
+
+    Args:
+        mime(str): a full mime type such as ``image/jpeg`` or a shortcut ``jpg``.
+
+        input(str): content of the input, such as jpeg data or svg source file.
+
+        typ(string): specify output image type such as "png", "jpg"
+
+    Returns:
+        bytes of the png data
+    '''
+
+
+    m = mimetypes.get(mime) or mime
+    datauri = b"data:" + to_bytes(m) + b';base64,' +  base64.b64encode(to_bytes(input))
+
+    chrome = 'google-chrome'
+    if sys.platform == 'darwin':
+        # mac
+        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+
+    with tempfile.TemporaryDirectory() as tdir:
+        k3proc.command_ex(
+            chrome,
+            "--headless",
+            "--screenshot",
+            "--window-size=1000,2000",
+            "--default-background-color=0",
+            datauri,
+            cwd=tdir,
+        )
+
+        if typ == 'png':
+            moreargs = []
+        else:
+            # flatten alpha channel
+            moreargs = ['-background', 'white', '-flatten', '-alpha', 'off']
+
+        # crop to visible area
+        _, out, _ = k3proc.command_ex(
+            "convert",
+            pjoin(tdir, "screenshot.png"),
+            "-trim",
+            "+repage",
+            *moreargs,
+            typ + ":-",
+            text=False,
+        )
+
+    return out
+
+
 html_style = '''
 <style type="text/css" media="screen">
     table {
@@ -514,3 +574,11 @@ def mermaid_to_png(mmd, cwd=None):
     Alias to mermaid_to_img(mmd, "png", cwd=cwd)
     """
     return mermaid_to_img(mmd, 'png', cwd=cwd)
+
+
+def to_bytes(s):
+     return bytes(s, 'utf-8')
+
+
+def pjoin(*p):
+    return os.path.join(*p)

@@ -1,0 +1,65 @@
+<style type="text/css" media="screen">
+    table {
+        display: block;
+        margin-bottom: 1em;
+        width: fit-content;
+        font-family: -apple-system,BlinkMacSystemFont,"Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Arial,sans-serif;
+        font-size: .75em;
+        border-collapse: collapse;
+        overflow-x: auto;
+    }
+
+    thead {
+        background-color: #f2f3f3;
+        border-bottom: 2px solid #b6b6b6;
+    }
+
+    th {
+        padding: 0.5em;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    td {
+        padding: 0.5em;
+        border-bottom: 1px solid #ddd;
+    }
+
+    tr,
+    td,
+    th {
+        vertical-align: middle;
+    }
+    pre.highlight {
+        margin: 0;
+        padding: 1em;
+        background: #263238;
+        color: #eff;
+        font-size: 1.5em;
+        font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,"PingFang SC", "Microsoft YaHei",monospace;
+    }
+</style>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">a</th>
+<th style="text-align: right;">b</th>
+<th style="text-align: center;">b</th>
+<th>b</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">c <code>foo | bar</code></td>
+<td style="text-align: right;">d</td>
+<td style="text-align: center;">d</td>
+<td>d</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">e</td>
+<td style="text-align: right;">f</td>
+<td style="text-align: center;">f</td>
+<td>f</td>
+</tr>
+</tbody>
+</table>

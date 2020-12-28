@@ -23,6 +23,8 @@ from .down2 import web_to_img
 from .down2 import web_to_jpg
 from .down2 import web_to_png
 
+from .down2 import render_to_img
+
 from .down2 import download
 
 from .down2 import mermaid_to_svg

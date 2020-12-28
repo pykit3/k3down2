@@ -171,6 +171,28 @@ X = \begin{bmatrix}
             self.assertGreater(sim, 0.9)
             rm(d, gotfn)
 
+
+    def test_render_to_img(self):
+
+        d = 'test/data/render_to_img'
+
+        for frm, to in [('html', 'png'),
+                        ('svg', 'jpg'),
+        ]:
+
+            typ = to
+            gotfn = 'got.' + typ
+
+            inp = fread(d, frm, "input")
+
+            data = k3down2.render_to_img(frm, inp, to)
+            fwrite(d, frm, gotfn, data)
+
+            sim = cmp_image(os.path.join(d, frm, 'want.' + typ),
+                            os.path.join(d, frm, gotfn))
+            self.assertGreater(sim, 0.9)
+
+
     def test_download(self):
         url = 'https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C'
 
