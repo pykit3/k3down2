@@ -32,6 +32,16 @@ zhihu_equation_fmt = ('<img src="https://www.zhihu.com/equation'
                       ' eeimg="1">')
 
 
+def convert(input_typ, input, output_typ):
+    conv = mappings[(input_typ, output_typ)]
+    if callable(conv):
+        return conv(input)
+    else:
+        #  indirect convertion
+        inp = convert(input_typ, input, conv)
+        return convert(conv, inp, output_typ)
+
+
 def tex_to_zhihu_url(tex, block):
     '''
     Convert tex source to a url linking to a svg on zhihu.
@@ -231,21 +241,7 @@ def tex_to_plain(tex):
     return LatexNodes2Text().latex_to_text(tex)
 
 
-def tex_to_png(tex, block, outputfn=None):
-    '''
-    Alias of ``tex_to_img(tex, block, "png", outputfn=outputfn)``
-    '''
-    return tex_to_img(tex, block, "png", outputfn=outputfn)
-
-
-def tex_to_jpg(tex, block, outputfn=None):
-    '''
-    Alias of ``tex_to_img(tex, block, "jpg", outputfn=outputfn)``
-    '''
-    return tex_to_img(tex, block, "jpg", outputfn=outputfn)
-
-
-def tex_to_img(tex, block, typ, outputfn=None):
+def tex_to_img(tex, block, typ):
     '''
     Convert tex source to an image.
 
@@ -257,24 +253,17 @@ def tex_to_img(tex, block, typ, outputfn=None):
 
         typ(str): output image type such as "png" or "jpg"
 
-        outputfn(str): specifies the output path. By default it is None.
-
     Returns:
         bytes of png data.
     '''
 
-    tmpfn = 'tex_to_png.svg'
-    url = tex_to_zhihu_url(tex, block)
-    download(url, outputfn=tmpfn)
-    data = web_to_img(tmpfn, typ)
-    if outputfn is not None:
-        with open(outputfn, 'wb') as f:
-            f.write(data)
-
-    return data
+    input_type = 'tex_block'
+    if not block:
+        input_type = 'tex_inline'
+    return convert(input_type, tex, typ)
 
 
-def download(url, outputfn=None):
+def download(url):
     '''
     Download content from ``url`` and return the responded data.
     If ``outputfn`` is specified, it also saves the data into ``outputfn``.
@@ -282,39 +271,16 @@ def download(url, outputfn=None):
     Args:
         url(str): the url from which to download.
 
-        outputfn(str): the output path to save the data. If it is None, do nothing.
-
     Returns:
         bytes of downloaded data.
     '''
 
     filedata = urllib.request.urlopen(url)
     datatowrite = filedata.read()
-
-    if outputfn is not None:
-        with open(outputfn, 'wb') as f:
-            f.write(datatowrite)
-
     return datatowrite
 
 
-def web_to_png(pagefn, cwd=None):
-    '''
-    Alias of ``web_to_img(pagefn, typ="png", cwd=cwd)``.
-    '''
-
-    return web_to_img(pagefn, "png", cwd=cwd)
-
-
-def web_to_jpg(pagefn, cwd=None):
-    '''
-    Alias of ``web_to_img(pagefn, typ="jpg", cwd=cwd)``.
-    '''
-
-    return web_to_img(pagefn, "jpg", cwd=cwd)
-
-
-def web_to_img(pagefn, typ, cwd=None):
+def web_to_img(pagefn, typ):
     '''
     Render a web page, which could be html, svg etc into image.
     It uses a headless chrome to render the page.
@@ -325,45 +291,13 @@ def web_to_img(pagefn, typ, cwd=None):
 
         typ(string): specify output image type such as "png", "jpg"
 
-        cwd(string): path to the working dir. By default it is None.
-
     Returns:
         bytes of the png data
     '''
 
-    chrome = 'google-chrome'
-    if sys.platform == 'darwin':
-        # mac
-        chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    k3proc.command_ex(
-        chrome,
-        "--headless",
-        "--screenshot",
-        "--window-size=1000,2000",
-        "--default-background-color=0",
-        pagefn,
-        cwd=cwd,
-    )
-
-    if typ == 'png':
-        moreargs = []
-    else:
-        # flatten alpha channel
-        moreargs = ['-background', 'white', '-flatten', '-alpha', 'off']
-
-    # crop to visible area
-    _, out, _ = k3proc.command_ex(
-        "convert",
-        "screenshot.png",
-        "-trim",
-        "+repage",
-        *moreargs,
-        typ + ":-",
-        text=False,
-        cwd=cwd,
-    )
-
-    return out
+    intyp = pagefn.rsplit('.')[-1]
+    page = fread(pagefn)
+    return render_to_img(intyp, page, typ)
 
 
 def render_to_img(mime, input, typ):
@@ -384,9 +318,8 @@ def render_to_img(mime, input, typ):
         bytes of the png data
     '''
 
-
     m = mimetypes.get(mime) or mime
-    datauri = b"data:" + to_bytes(m) + b';base64,' +  base64.b64encode(to_bytes(input))
+    datauri = b"data:" + to_bytes(m) + b';base64,' + base64.b64encode(to_bytes(input))
 
     chrome = 'google-chrome'
     if sys.platform == 'darwin':
@@ -490,26 +423,6 @@ def md_to_html(md):
     return html_style + html
 
 
-def md_to_png(md):
-    '''
-    Build markdown source into html screenshot in png.
-
-    Args:
-        md(str): markdown source.
-
-    Returns:
-        bytes of png data.
-    '''
-
-    html = md_to_html(md)
-
-    fn = 'x.html'
-    with open(fn, 'w') as f:
-        f.write(html)
-
-    return web_to_png(fn)
-
-
 def mdtable_to_barehtml(md):
     '''
     Build markdown table into html without style.
@@ -535,7 +448,7 @@ def mdtable_to_barehtml(md):
     return '\n'.join(lines)
 
 
-def mermaid_to_svg(mmd, outputfn):
+def mermaid_to_svg(mmd):
     """
     Render mermaid to svg.
     See: https://mermaid-js.github.io/mermaid/#
@@ -544,41 +457,70 @@ def mermaid_to_svg(mmd, outputfn):
         npm install @mermaid-js/mermaid-cli
     """
 
-    k3proc.command_ex(
-        "mmdc",
-        "-o", outputfn,
-        input=mmd,
-    )
-
-
-def mermaid_to_img(mmd, typ, cwd=None):
-    """
-    Render mermaid to image.
-    """
-
     with tempfile.TemporaryDirectory() as tdir:
-        p = os.path.join(tdir, "mmd.svg")
-        mermaid_to_svg(mmd, p)
-        return web_to_img(p, typ, cwd=cwd)
-
-
-def mermaid_to_jpg(mmd, cwd=None):
-    """
-    Alias to mermaid_to_img(mmd, "jpg", cwd=cwd)
-    """
-    return mermaid_to_img(mmd, 'jpg', cwd=cwd)
-
-
-def mermaid_to_png(mmd, cwd=None):
-    """
-    Alias to mermaid_to_img(mmd, "png", cwd=cwd)
-    """
-    return mermaid_to_img(mmd, 'png', cwd=cwd)
+        output_path = os.path.join(tdir, "mmd.svg")
+        k3proc.command_ex(
+            "mmdc",
+            "-o", output_path,
+            input=mmd,
+        )
+        return fread(output_path)
 
 
 def to_bytes(s):
-     return bytes(s, 'utf-8')
+    if isinstance(s, bytes):
+        return s
+    return bytes(s, 'utf-8')
 
 
 def pjoin(*p):
     return os.path.join(*p)
+
+
+def fread(*p):
+    with open(os.path.join(*p), 'r') as f:
+        return f.read()
+
+
+mappings = {
+    ('md', 'html'): md_to_html,
+    ('md', 'jpg'): 'html',
+    ('md', 'png'): 'html',
+
+    ('html', 'jpg'): lambda x: render_to_img('html', x, 'jpg'),
+    ('html', 'png'): lambda x: render_to_img('html', x, 'png'),
+
+    # markdown table
+    ('table', 'html'): mdtable_to_barehtml,
+    ('table', 'jpg'): 'html',
+    ('table', 'png'): 'html',
+
+    ('mermaid', 'svg'): mermaid_to_svg,
+    ('mermaid', 'jpg'): 'svg',
+    ('mermaid', 'png'): 'svg',
+
+    ('tex_block', 'url'): lambda x: tex_to_zhihu_url(x, True),
+    ('tex_inline', 'url'): lambda x: tex_to_zhihu_url(x, False),
+    ('tex_block', 'imgtag'): lambda x: tex_to_zhihu(x, True),
+    ('tex_inline', 'imgtag'): lambda x: tex_to_zhihu(x, False),
+
+    ('url', 'jpg'): download,
+    ('url', 'png'): download,
+    ('url', 'svg'): download,
+    ('url', 'html'): download,
+
+    ('tex_block', 'jpg'): 'svg',
+    ('tex_inline', 'jpg'): 'svg',
+    ('tex_block', 'png'): 'svg',
+    ('tex_inline', 'png'): 'svg',
+
+    ('tex_block', 'svg'): 'url',
+    ('tex_inline', 'svg'): 'url',
+
+    ('tex_inline', 'plain'): tex_to_plain,
+
+    ('svg', 'jpg'): lambda x: render_to_img('svg', x, 'jpg'),
+    ('svg', 'png'): lambda x: render_to_img('svg', x, 'png'),
+
+
+}

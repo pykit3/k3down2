@@ -27,6 +27,23 @@ class TestTex(unittest.TestCase):
     def tearDown(self):
         self._clean()
 
+    def test_convert(self):
+        d = 'test/data/convert'
+        for frm in ( 'md', 'mermaid', 'table', 'tex_block', 'tex_inline', ):
+            for to in ('jpg', 'png'):
+                inp = fread(d, frm, 'input')
+                got = k3down2.convert(frm, inp, to)
+
+                wantpath = pjoin(d, frm, 'want.' + to)
+                gotpath = pjoin(d, frm, 'got.' + to)
+
+                fwrite(gotpath, got)
+
+                sim = cmp_image(wantpath, gotpath)
+                self.assertGreater(sim, 0.8)
+
+
+
     def test_tex_to_zhihu(self):
         big = r'''
 X = \begin{bmatrix}
@@ -68,6 +85,9 @@ X = \begin{bmatrix}
             got = k3down2.tex_to_plain(inp)
             self.assertEqual(want, got, inp)
 
+            got = k3down2.convert('tex_inline', inp, 'plain')
+            self.assertEqual(want, got, inp)
+
     def test_tex_to_img(self):
 
         d = 'test/data/tex_to_img_matrix'
@@ -82,32 +102,13 @@ X = \begin{bmatrix}
 \end{bmatrix}
 '''.strip()
 
-        tmpfn = pjoin(d, 'got.png')
-        rm(tmpfn)
-
-        got = k3down2.tex_to_png(tex, False)
-        fwrite(tmpfn, got)
-        _, typ, _ = k3proc.command_ex(
-            'file', tmpfn
-        )
-        self.assertIn('PNG', typ)
-        rm(tmpfn)
-
-        # output to a file
-
-        got = k3down2.tex_to_png(tex, False, outputfn=tmpfn)
-        _, typ, _ = k3proc.command_ex(
-            'file', tmpfn
-        )
-        self.assertIn('PNG', typ)
-        rm(tmpfn)
-
         for typ in ('jpg', 'png'):
             wantfn = 'want.' + typ
             gotfn = 'got.' + typ
             rm(pjoin(d, gotfn))
 
-            k3down2.tex_to_img(tex, False, typ, outputfn=pjoin(d, gotfn))
+            got = k3down2.tex_to_img(tex, False, typ)
+            fwrite(d, gotfn, got)
             sim = cmp_image(pjoin(d, wantfn), pjoin(d, gotfn))
             self.assertGreater(sim, 0.9)
 
@@ -144,26 +145,13 @@ X = \begin{bmatrix}
 
         d = 'test/data/svg_to_png_matrix'
 
-        for typ, func in [('png', k3down2.web_to_png),
-                          ('jpg', k3down2.web_to_jpg),
-                          ]:
+        for typ in ['png', 'jpg', ]:
 
             wantfn = 'want.' + typ
             gotfn = 'got.' + typ
-            rm(d, gotfn)
-
-            data = func('input.svg', cwd=d)
-            fwrite(d, gotfn, data)
-
-            sim = cmp_image(os.path.join(d, wantfn),
-                            os.path.join(d, gotfn))
-            self.assertGreater(sim, 0.9)
-            rm(d, gotfn)
-
-            # web_to_img
 
             rm(d, gotfn)
-            data = k3down2.web_to_img('input.svg', typ, cwd=d)
+            data = k3down2.web_to_img(pjoin(d, 'input.svg'), typ)
             fwrite(d, gotfn, data)
 
             sim = cmp_image(os.path.join(d, wantfn),
@@ -201,12 +189,6 @@ X = \begin{bmatrix}
         with open('test/data/ab.svg', 'rb') as f:
             want = f.read()
         self.assertEqual(want, data)
-
-        k3down2.download(url, outputfn='test/data/foo.svg')
-
-        with open('test/data/foo.svg', 'rb') as f:
-            got = f.read()
-        self.assertEqual(want, got)
 
     def test_mdtable_to_barehtml(self):
 
@@ -323,40 +305,6 @@ X = \begin{bmatrix}
         want = normalize_pandoc_output(want, got)
 
         self.assertEqual(want, got)
-
-    def test_md_to_png(self):
-
-        md = r'''
-| a   | b   | b   |b   |
-| :-- | --: | :-: |--- |
-| c `foo | bar`   | d   | d   |d   |
-| e   | f   | f   |f   |
-'''
-        got = k3down2.md_to_png(md)
-        with open('x.png', 'wb') as f:
-            f.write(got)
-
-    def test_mermaid_to_xxx(self):
-
-        d = 'test/data/mermaid'
-
-        mmd = fread(d, 'input.mmd')
-
-        for typ, func in (
-            ('jpg', k3down2.mermaid_to_jpg),
-            ('png', k3down2.mermaid_to_png),
-        ):
-
-            got = func(mmd)
-
-            with tempfile.TemporaryDirectory() as tdir:
-                gotfn = pjoin(tdir, 'got.' + typ)
-                with open(gotfn, 'wb') as f:
-                    f.write(got)
-
-                wantfn = pjoin(d, 'want.' + typ)
-                sim = cmp_image(wantfn, gotfn)
-                self.assertGreater(sim, 0.8)
 
 
 def normalize_pandoc_output(want, got):
