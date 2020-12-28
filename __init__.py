@@ -10,7 +10,7 @@ It depends on:
 
 """
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __name__ = "k3down2"
 
 from .down2 import convert
