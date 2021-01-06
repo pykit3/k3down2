@@ -24,8 +24,9 @@ Functions
 
 .. autofunction:: convert
 
-.. autofunction:: tex_to_zhihu_url
 .. autofunction:: tex_to_zhihu
+.. autofunction:: tex_to_zhihu_compatible
+.. autofunction:: tex_to_zhihu_url
 .. autofunction:: tex_to_plain
 .. autofunction:: tex_to_img
 .. autofunction:: web_to_img

@@ -43,6 +43,13 @@ class TestTex(unittest.TestCase):
                 self.assertGreater(sim, 0.8)
 
 
+    def test_tex_to_zhihu_compatible(self):
+        tex = r'\{ q > 5, a <> 2 \}'
+        want = r'\{ q \gt 5, a <\gt 2 \}'
+        wanturl = '%5C%7B%20q%20%5Cgt%205%2C%20a%20%3C%5Cgt%202%20%5C%7D'
+        got, goturl = k3down2.tex_to_zhihu_compatible(tex)
+        self.assertEqual(want, got)
+        self.assertEqual(wanturl, goturl)
 
     def test_tex_to_zhihu(self):
         big = r'''

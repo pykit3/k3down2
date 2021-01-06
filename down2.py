@@ -42,6 +42,17 @@ def convert(input_typ, input, output_typ):
         return convert(conv, inp, output_typ)
 
 
+def tex_to_zhihu_compatible(tex):
+    r"""
+    Convert tex to zhihu compatible format.
+    - ``>`` in img alt mess up the next escaped brace: ``\{ q > 1 \} --> \{ q > 1 }``.
+    """
+
+    tex = re.sub(r'\n', '', tex)
+    tex = tex.replace(r'>', r'\gt')
+    texurl = urllib.parse.quote(tex)
+    return tex, texurl
+
 def tex_to_zhihu_url(tex, block):
     '''
     Convert tex source to a url linking to a svg on zhihu.
@@ -56,8 +67,8 @@ def tex_to_zhihu_url(tex, block):
     Returns:
         string of a ``<img>`` tag.
     '''
-    tex = re.sub(r'\n', '', tex)
-    texurl = urllib.parse.quote(tex)
+
+    tex, texurl = tex_to_zhihu_compatible(tex)
 
     if block:
         # zhihu use double back slash to center-align an equation.
@@ -88,8 +99,7 @@ def tex_to_zhihu(tex, block):
         string of a ``<img>`` tag.
     '''
 
-    tex = re.sub(r'\n', '', tex)
-    texurl = urllib.parse.quote(tex)
+    tex, texurl = tex_to_zhihu_compatible(tex)
 
     if block:
         # zhihu use double back slash to center-align an equation.
@@ -319,7 +329,8 @@ def render_to_img(mime, input, typ):
     '''
 
     m = mimetypes.get(mime) or mime
-    datauri = b"data:" + to_bytes(m) + b';base64,' + base64.b64encode(to_bytes(input))
+    datauri = b"data:" + to_bytes(m) + b';base64,' + \
+        base64.b64encode(to_bytes(input))
 
     chrome = 'google-chrome'
     if sys.platform == 'darwin':
