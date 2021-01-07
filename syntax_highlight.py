@@ -81,7 +81,7 @@ def code_to_html(text):
         lexer = get_lexer_by_name(lang, stripall=True)
         formatter = HtmlFormatter(
             noclasses=True, linenos=linenos, style=style,
-            prestyles=r'line-height: 1.8 !important; margin: 0 !important; padding: 1em;'
+                prestyles=r'line-height: 1.8 !important; margin: 0 !important; padding: 1em; background: {}'.format(style.background_color)
         )
         code = highlight(text, lexer, formatter)
         if linenos:
