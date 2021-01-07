@@ -4,3 +4,4 @@
 k3ut~=0.1.7
 k3proc~=0.2.10
 pylatexenc~=2.8
+pygments~=2.7.3
