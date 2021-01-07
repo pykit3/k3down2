@@ -14,8 +14,7 @@ from pylatexenc.latex2text import LatexNodes2Text
 
 import k3proc
 from .mime import mimetypes
-
-#  from . import mistune
+from .syntax_highlight import code_to_html
 
 
 logger = logging.getLogger(__name__)
@@ -533,5 +532,8 @@ mappings = {
     ('svg', 'jpg'): lambda x: render_to_img('svg', x, 'jpg'),
     ('svg', 'png'): lambda x: render_to_img('svg', x, 'png'),
 
+    ('code', 'html'): code_to_html,
+    ('code', 'jpg'): 'html',
+    ('code', 'png'): 'html',
 
 }

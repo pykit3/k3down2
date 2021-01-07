@@ -1,0 +1,24 @@
+```go
+func (sm *SlimArray) Get(i int32) uint32 {
+
+    x := float64(i)
+
+    bm := sm.spansBitmap & bitmap.Mask[i>>4]
+    spanIdx := bits.OnesCount64(bm)
+
+    j := spanIdx * polyCoefCnt
+    p := sm.Polynomials
+    v := int64(p[j] + p[j+1]*x + p[j+2]*x*x)
+
+    config := sm.Configs[spanIdx]
+    deltaWidth := config & 0xff
+    offset := config >> 8
+
+    bitIdx := offset + int64(i)*deltaWidth
+
+    d := sm.Deltas[bitIdx>>6]
+    d = d >> uint(bitIdx&63)
+
+    return uint32(v + int64(d&bitmap.Mask[deltaWidth]))
+}
+```

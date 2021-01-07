@@ -10,7 +10,7 @@ It depends on:
 
 """
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 __name__ = "k3down2"
 
 from .down2 import convert
@@ -27,6 +27,8 @@ from .down2 import render_to_img
 from .down2 import download
 
 from .down2 import mermaid_to_svg
+
+from .down2 import code_to_html
 
 from .down2 import md_to_html
 from .down2 import mdtable_to_barehtml

@@ -35,6 +35,8 @@ Functions
 
 .. autofunction:: mermaid_to_svg
 
+.. autofunction:: code_to_html
+
 .. autofunction:: md_to_html
 .. autofunction:: mdtable_to_barehtml
 

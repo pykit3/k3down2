@@ -29,7 +29,8 @@ class TestTex(unittest.TestCase):
 
     def test_convert(self):
         d = 'test/data/convert'
-        for frm in ( 'md', 'mermaid', 'table', 'tex_block', 'tex_inline', ):
+        for frm in (
+                'md', 'mermaid', 'table', 'tex_block', 'tex_inline', 'code', ):
             for to in ('jpg', 'png'):
                 inp = fread(d, frm, 'input')
                 got = k3down2.convert(frm, inp, to)
