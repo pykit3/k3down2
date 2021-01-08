@@ -70,18 +70,28 @@ def code_to_html(text):
     lang = lines[0][3:].strip()
     text = '\n'.join(lines[1:-1])
 
-    if lang == '':
-        text = text.strip()
-        return u'<pre><code>%s</code></pre>\n' % escape(text)
-
     linenos = False
     style = Base16Style
+
+    prestyles = (r'line-height: 1.8 !important;'
+                 ' margin: 0 !important;'
+                 ' padding: 1em;'
+                 ' white-space: pre-wrap;'
+                 ' background: {};'
+                 ' color: {};').format(
+                         style.background_color,
+                         style.default_style,
+                 )
+
+    if lang == '':
+        text = text.strip()
+        return u'<pre style="%s"><code>%s</code></pre>\n' % (prestyles, escape(text))
 
     try:
         lexer = get_lexer_by_name(lang, stripall=True)
         formatter = HtmlFormatter(
             noclasses=True, linenos=linenos, style=style,
-                prestyles=r'line-height: 1.8 !important; margin: 0 !important; padding: 1em; background: {}'.format(style.background_color)
+                prestyles=prestyles
         )
         code = highlight(text, lexer, formatter)
         if linenos:

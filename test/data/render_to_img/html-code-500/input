@@ -1,0 +1,23 @@
+<div class="highlight" style="background: #263238"><pre style="line-height: 1.8 !important; margin: 0 !important; padding: 1em; background: #263238; line-height: 125%;"><span></span><span style="color: #c792ea">func</span> <span style="color: #eeffff">(sm</span> <span style="color: #82aaff">*</span><span style="color: #eeffff">SlimArray)</span> <span style="color: #eeffff">Get(i</span> <span style="color: #ffcb6b">int32</span><span style="color: #eeffff">)</span> <span style="color: #ffcb6b">uint32</span> <span style="color: #eeffff">{</span>
+
+    <span style="color: #eeffff">x</span> <span style="color: #82aaff">:=</span> <span style="color: #ffcb6b">float64</span><span style="color: #eeffff">(i)</span>
+
+    <span style="color: #eeffff">bm</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">sm.spansBitmap</span> <span style="color: #82aaff">&amp;</span> <span style="color: #eeffff">bitmap.Mask[i</span><span style="color: #82aaff">&gt;&gt;</span><span style="color: #f78c6c">4</span><span style="color: #eeffff">]</span>
+    <span style="color: #eeffff">spanIdx</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">bits.OnesCount64(bm)</span>
+
+    <span style="color: #eeffff">j</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">spanIdx</span> <span style="color: #82aaff">*</span> <span style="color: #eeffff">polyCoefCnt</span>
+    <span style="color: #eeffff">p</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">sm.Polynomials</span>
+    <span style="color: #eeffff">v</span> <span style="color: #82aaff">:=</span> <span style="color: #ffcb6b">int64</span><span style="color: #eeffff">(p[j]</span> <span style="color: #82aaff">+</span> <span style="color: #eeffff">p[j</span><span style="color: #82aaff">+</span><span style="color: #f78c6c">1</span><span style="color: #eeffff">]</span><span style="color: #82aaff">*</span><span style="color: #eeffff">x</span> <span style="color: #82aaff">+</span> <span style="color: #eeffff">p[j</span><span style="color: #82aaff">+</span><span style="color: #f78c6c">2</span><span style="color: #eeffff">]</span><span style="color: #82aaff">*</span><span style="color: #eeffff">x</span><span style="color: #82aaff">*</span><span style="color: #eeffff">x)</span>
+
+    <span style="color: #eeffff">config</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">sm.Configs[spanIdx]</span>
+    <span style="color: #eeffff">deltaWidth</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">config</span> <span style="color: #82aaff">&amp;</span> <span style="color: #f78c6c">0xff</span>
+    <span style="color: #eeffff">offset</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">config</span> <span style="color: #82aaff">&gt;&gt;</span> <span style="color: #f78c6c">8</span>
+
+    <span style="color: #eeffff">bitIdx</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">offset</span> <span style="color: #82aaff">+</span> <span style="color: #ffcb6b">int64</span><span style="color: #eeffff">(i)</span><span style="color: #82aaff">*</span><span style="color: #eeffff">deltaWidth</span>
+
+    <span style="color: #eeffff">d</span> <span style="color: #82aaff">:=</span> <span style="color: #eeffff">sm.Deltas[bitIdx</span><span style="color: #82aaff">&gt;&gt;</span><span style="color: #f78c6c">6</span><span style="color: #eeffff">]</span>
+    <span style="color: #eeffff">d</span> <span style="color: #eeffff">=</span> <span style="color: #eeffff">d</span> <span style="color: #82aaff">&gt;&gt;</span> <span style="color: #ffcb6b">uint</span><span style="color: #eeffff">(bitIdx</span><span style="color: #82aaff">&amp;</span><span style="color: #f78c6c">63</span><span style="color: #eeffff">)</span>
+
+    <span style="color: #c792ea">return</span> <span style="color: #ffcb6b">uint32</span><span style="color: #eeffff">(v</span> <span style="color: #82aaff">+</span> <span style="color: #ffcb6b">int64</span><span style="color: #eeffff">(d</span><span style="color: #82aaff">&amp;</span><span style="color: #eeffff">bitmap.Mask[deltaWidth]))</span>
+<span style="color: #eeffff">}</span>
+</pre></div>

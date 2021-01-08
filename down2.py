@@ -31,14 +31,17 @@ zhihu_equation_fmt = ('<img src="https://www.zhihu.com/equation'
                       ' eeimg="1">')
 
 
-def convert(input_typ, input, output_typ):
+def convert(input_typ, input, output_typ, opt=None):
     conv = mappings[(input_typ, output_typ)]
     if callable(conv):
-        return conv(input)
+        kwargs = {}
+        if opt is not None and input_typ in opt:
+            kwargs = opt[input_typ]
+        return conv(input, **kwargs)
     else:
         #  indirect convertion
-        inp = convert(input_typ, input, conv)
-        return convert(conv, inp, output_typ)
+        inp = convert(input_typ, input, conv, opt=opt)
+        return convert(conv, inp, output_typ, opt=opt)
 
 
 def tex_to_zhihu_compatible(tex):
@@ -309,7 +312,7 @@ def web_to_img(pagefn, typ):
     return render_to_img(intyp, page, typ)
 
 
-def render_to_img(mime, input, typ):
+def render_to_img(mime, input, typ, width=1000, height=2000):
     '''
     Render content that is renderable in chrome to image.
     Such as html, svg etc into image.
@@ -337,11 +340,13 @@ def render_to_img(mime, input, typ):
         chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
     with tempfile.TemporaryDirectory() as tdir:
+        tdir = '.'
+
         k3proc.command_ex(
             chrome,
             "--headless",
             "--screenshot",
-            "--window-size=1000,2000",
+            "--window-size={},{}".format(width, height),
             "--default-background-color=0",
             datauri,
             cwd=tdir,
@@ -497,8 +502,8 @@ mappings = {
     ('md', 'jpg'): 'html',
     ('md', 'png'): 'html',
 
-    ('html', 'jpg'): lambda x: render_to_img('html', x, 'jpg'),
-    ('html', 'png'): lambda x: render_to_img('html', x, 'png'),
+    ('html', 'jpg'): lambda x, **kwargs: render_to_img('html', x, 'jpg', **kwargs),
+    ('html', 'png'): lambda x, **kwargs: render_to_img('html', x, 'png', **kwargs),
 
     # markdown table
     ('table', 'html'): mdtable_to_barehtml,

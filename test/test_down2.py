@@ -29,19 +29,36 @@ class TestTex(unittest.TestCase):
 
     def test_convert(self):
         d = 'test/data/convert'
-        for frm in (
-                'md', 'mermaid', 'table', 'tex_block', 'tex_inline', 'code', ):
-            for to in ('jpg', 'png'):
-                inp = fread(d, frm, 'input')
-                got = k3down2.convert(frm, inp, to)
+        for folder, to, opts in (
+                ('code',        'jpg', {}, ),
+                ('code',        'png', {}, ),
+                ('code-500',    'jpg', {"width":500}, ),
+                ('code-nolang', 'jpg', {}, ),
+                ('md',          'jpg', {}, ),
+                ('md',          'png', {}, ),
+                ('mermaid',     'jpg', {}, ),
+                ('mermaid',     'png', {}, ),
+                ('table',       'jpg', {}, ),
+                ('table',       'png', {}, ),
+                ('tex_block',   'jpg', {}, ),
+                ('tex_block',   'png', {}, ),
+                ('tex_inline',  'jpg', {}, ),
+                ('tex_inline',  'png', {}, ),
+        ):
 
-                wantpath = pjoin(d, frm, 'want.' + to)
-                gotpath = pjoin(d, frm, 'got.' + to)
+            frm = folder.split('-')[0]
+            inp = fread(d, folder, 'input')
+            got = k3down2.convert(frm, inp, to, opt={'html': opts})
 
-                fwrite(gotpath, got)
+            wantpath = pjoin(d, folder, 'want.' + to)
+            gotpath = pjoin(d, folder, 'got.' + to)
 
-                sim = cmp_image(wantpath, gotpath)
-                self.assertGreater(sim, 0.8)
+            fwrite(gotpath, got)
+
+            sim = cmp_image(wantpath, gotpath)
+            self.assertGreater(sim, 0.8)
+
+            rm(gotpath)
 
 
     def test_tex_to_zhihu_compatible(self):
@@ -172,21 +189,28 @@ X = \begin{bmatrix}
 
         d = 'test/data/render_to_img'
 
-        for frm, to in [('html', 'png'),
-                        ('svg', 'jpg'),
+        for frm, to, opts in [
+                ('html', 'png', {}),
+                ('svg', 'jpg', {}),
+                ('html-code', 'png', {}),
+                ('html-code-500', 'png', {"width":500}),
+                ('html-code-300', 'png', {"width":300}),
         ]:
 
+            frm_typ = frm.split('-')[0]
             typ = to
             gotfn = 'got.' + typ
 
             inp = fread(d, frm, "input")
 
-            data = k3down2.render_to_img(frm, inp, to)
+            data = k3down2.render_to_img(frm_typ, inp, to, **opts)
             fwrite(d, frm, gotfn, data)
 
             sim = cmp_image(os.path.join(d, frm, 'want.' + typ),
                             os.path.join(d, frm, gotfn))
             self.assertGreater(sim, 0.9)
+
+            rm(d, frm, gotfn)
 
 
     def test_download(self):
@@ -344,10 +368,8 @@ def cmp_image(want, got):
 
     print("img1:-------------", want)
     print(img1.shape)
-    print(img1)
     print("img2:-------------", got)
     print(img2.shape)
-    print(img2)
 
     p = ssim(img1, img2, multichannel=True)
     return p
