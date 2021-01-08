@@ -340,8 +340,6 @@ def render_to_img(mime, input, typ, width=1000, height=2000):
         chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
     with tempfile.TemporaryDirectory() as tdir:
-        tdir = '.'
-
         k3proc.command_ex(
             chrome,
             "--headless",
