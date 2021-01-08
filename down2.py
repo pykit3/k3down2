@@ -330,6 +330,9 @@ def render_to_img(mime, input, typ, width=1000, height=2000):
         bytes of the png data
     '''
 
+    if 'html' in mime:
+        input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
+
     m = mimetypes.get(mime) or mime
     datauri = b"data:" + to_bytes(m) + b';base64,' + \
         base64.b64encode(to_bytes(input))

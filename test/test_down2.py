@@ -34,6 +34,7 @@ class TestTex(unittest.TestCase):
                 ('code',        'png', {}, ),
                 ('code-500',    'jpg', {"width":500}, ),
                 ('code-nolang', 'jpg', {}, ),
+                ('code-unicode','jpg', {}, ),
                 ('md',          'jpg', {}, ),
                 ('md',          'png', {}, ),
                 ('mermaid',     'jpg', {}, ),
