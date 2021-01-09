@@ -339,6 +339,28 @@ X = \begin{bmatrix}
 
         self.assertEqual(want, got)
 
+    def test_md_to_html_embed_image(self):
+
+        # Render a markdown of a single table with a image in it.
+        # By specifying the asset base url, it should be rendered correctly.
+
+        md = r'''
+| a   | b   | b   |b   |
+| :-- | --: | :-: |--- |
+| ![](foo.jpg)   | d   | d   |d   |
+| e   | f   | f   |f   |
+'''
+        d = 'test/data/md_to_html'
+        gothtml = k3down2.md_to_html(md)
+
+        data = k3down2.convert('html', gothtml, 'jpg',
+                               opt={'html':{'asset_base':os.path.abspath(d) + '/assets'}})
+        fwrite(d, 'got.jpg', data)
+
+        sim = cmp_image(os.path.join(d, 'want.jpg'),
+                        os.path.join(d, 'got.jpg'))
+        self.assertGreater(sim, 0.9)
+
 
 def normalize_pandoc_output(want, got):
     #  pandoc may output different style html:

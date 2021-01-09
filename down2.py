@@ -312,7 +312,7 @@ def web_to_img(pagefn, typ):
     return render_to_img(intyp, page, typ)
 
 
-def render_to_img(mime, input, typ, width=1000, height=2000):
+def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
     '''
     Render content that is renderable in chrome to image.
     Such as html, svg etc into image.
@@ -324,7 +324,13 @@ def render_to_img(mime, input, typ, width=1000, height=2000):
 
         input(str): content of the input, such as jpeg data or svg source file.
 
-        typ(string): specify output image type such as "png", "jpg"
+        typ(string): specifies output image type such as "png", "jpg"
+
+        width(int): specifies the window width to render a page. Default 1000.
+
+        height(int): specifies the window height to render a page. Default 2000.
+
+        asset_base(str): specifies the path to assets dir. E.g. the image base path in a html page.
 
     Returns:
         bytes of the png data
@@ -333,9 +339,21 @@ def render_to_img(mime, input, typ, width=1000, height=2000):
     if 'html' in mime:
         input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
 
+        # Only for html page we need to add asset_base url.
+        if asset_base is not None:
+            input = r'<base href="file://{}/">'.format(asset_base) + input
+
     m = mimetypes.get(mime) or mime
-    datauri = b"data:" + to_bytes(m) + b';base64,' + \
-        base64.b64encode(to_bytes(input))
+
+    # Use the input mime type as temp page suffix.
+    suffix = mime
+
+    # If the input ``mime`` is a full mime type such as `application/xhtml+xml`,
+    # convert it back to file suffix.
+    for k, v in mimetypes.items():
+        if v == m:
+            suffix = k
+            break
 
     chrome = 'google-chrome'
     if sys.platform == 'darwin':
@@ -343,13 +361,23 @@ def render_to_img(mime, input, typ, width=1000, height=2000):
         chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
     with tempfile.TemporaryDirectory() as tdir:
+        # Write page content into a temp file.
+        # Since chrome does not recoganize the `<base>` tag encoded in a
+        # data-uri.
+        fn = os.path.join(tdir, 'xxx.' + suffix)
+        flags = 'w'
+        if isinstance(input, bytes):
+            flags = 'wb'
+        with open(fn, flags) as f:
+            f.write(input)
+
         k3proc.command_ex(
             chrome,
             "--headless",
             "--screenshot",
             "--window-size={},{}".format(width, height),
             "--default-background-color=0",
-            datauri,
+            fn,
             cwd=tdir,
         )
 
