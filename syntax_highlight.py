@@ -73,12 +73,21 @@ def code_to_html(text):
     linenos = False
     style = Base16Style
 
-    prestyles = (r'line-height: 1.8 !important;'
+    lineheight = "1.8"
+
+    if lang == '':
+        # For illustration text graph, use lower line height.
+        # Becuase in such case it prefers an easy to read digram than a
+        # comforable line height.
+        lineheight = "1.3"
+
+    prestyles = (r'line-height: {} !important;'
                  ' margin: 0 !important;'
                  ' padding: 1em;'
                  ' white-space: pre-wrap;'
                  ' background: {};'
                  ' color: {};').format(
+                         lineheight,
                          style.background_color,
                          style.default_style,
                  )
