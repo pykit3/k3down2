@@ -14,7 +14,10 @@ k3down2 is utility to convert markdown segment into easy to transfer media sucha
 It depends on:
 
 - pandoc to render markdown snippet to html, such as tables.
-- chrome to render svg/html to png.
+- graphviz to render graphviz to image.
+- google-chrome to render svg/html to png.
+- imagemagick to process images.
+- mmdc to convert mermaid chart to svg. See: https://mermaid-js.github.io/mermaid/#
 
 
 

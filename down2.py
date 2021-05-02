@@ -510,6 +510,22 @@ def mermaid_to_svg(mmd):
         )
         return fread(output_path)
 
+def graphviz_to_img(gv, typ):
+    """
+    Render graphviz to svg.
+
+    Requires:
+        brew install graphviz
+    """
+
+    _, out, _ = k3proc.command_ex(
+        "dot",
+        "-T"+ typ,
+        input=to_bytes(gv),
+        text=False,
+    )
+    return out
+
 
 def to_bytes(s):
     if isinstance(s, bytes):
@@ -542,6 +558,10 @@ mappings = {
     ('mermaid', 'svg'): mermaid_to_svg,
     ('mermaid', 'jpg'): 'svg',
     ('mermaid', 'png'): 'svg',
+
+    ('graphviz', 'svg'): lambda x: graphviz_to_img(x, 'svg'),
+    ('graphviz', 'jpg'): lambda x: graphviz_to_img(x, 'jpg'),
+    ('graphviz', 'png'): lambda x: graphviz_to_img(x, 'png'),
 
     ('tex_block', 'url'): lambda x: tex_to_zhihu_url(x, True),
     ('tex_inline', 'url'): lambda x: tex_to_zhihu_url(x, False),

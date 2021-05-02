@@ -39,6 +39,8 @@ class TestTex(unittest.TestCase):
                 ('md',          'png', {}, ),
                 ('mermaid',     'jpg', {}, ),
                 ('mermaid',     'png', {}, ),
+                ('graphviz',    'jpg', {}, ),
+                ('graphviz',    'png', {}, ),
                 ('table',       'jpg', {}, ),
                 ('table',       'png', {}, ),
                 ('tex_block',   'jpg', {}, ),
