@@ -55,7 +55,7 @@ jobs:
         cd ..
         python setup.py install
         cd -
-        sudo env "PATH=$PATH:$(npm bin)" pytest -v
+        PATH=$PATH:$(npm bin) pytest -v
 
     - name: Test building doc
       run: |
