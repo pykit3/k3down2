@@ -478,10 +478,18 @@ def mdtable_to_barehtml(md):
         str of html
     '''
 
+    # A table with wide column will cause pandoc to produce ``colgroup`` tag, which is not recognized by zhihu.
+    # Reported in:
+    #      https://github.com/drmingdrmer/md2zhihu/issues/22
+    #
+    # Thus we have to set a very big rendering window to disable this behavior
+    #      https://github.com/jgm/pandoc/issues/2574
+
     _, html, _ = k3proc.command_ex(
         "pandoc",
         "-f", "markdown",
         "-t", "html",
+        "--column", "100000",
         input=md,
     )
     lines = html.strip().split('\n')
