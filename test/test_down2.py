@@ -427,15 +427,23 @@ def cmp_image(want, got):
         )
         db = skimage.io.imread(got)
 
-    img1 = skimage.img_as_float(da)
-    img2 = skimage.img_as_float(db)
+    img1 = skimage.img_as_int(da)
+    img2 = skimage.img_as_int(db)
 
     print("img1:-------------", want)
     print(img1.shape)
     print("img2:-------------", got)
     print(img2.shape)
 
-    p = ssim(img1, img2, multichannel=True)
+    # shape is in form: (170, 270, 4): 4 channels
+    #              or:  (170, 270):    1 channel
+
+    if len(img1.shape) == 2:
+        p = ssim(img1, img2)
+    else:
+        # channel_axis=2 specifies img.shape[2] specifies the number of channels
+        p = ssim(img1, img2, channel_axis=2)
+
     return p
 
 

@@ -374,9 +374,11 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         k3proc.command_ex(
             chrome,
             "--headless",
+            "--disable-gpu",
+            "--no-sandbox",
             "--screenshot",
             "--window-size={},{}".format(width, height),
-            "--default-background-color=0",
+            "--default-background-color=00000000",
             fn,
             cwd=tdir,
         )
