@@ -42,7 +42,7 @@ def get_gh_config():
     with open('.github/settings.yml', 'r') as f:
         cont = f.read()
 
-    cfg = yaml.load(cont)
+    cfg = yaml.safe_load(cont)
     tags = cfg['repository']['topics'].split(',')
     tags = [x.strip() for x in tags]
     cfg['repository']['topics'] = tags
@@ -56,7 +56,7 @@ def get_travis():
     except OSError:
         return None
 
-    cfg = yaml.load(cont)
+    cfg = yaml.safe_load(cont)
     return cfg
 
 
