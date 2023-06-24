@@ -514,6 +514,7 @@ def mermaid_to_svg(mmd):
     with tempfile.TemporaryDirectory() as tdir:
         output_path = os.path.join(tdir, "mmd.svg")
         k3proc.command_ex(
+            "npm", "exec", "--",
             "mmdc",
             "-o", output_path,
             input=mmd,
