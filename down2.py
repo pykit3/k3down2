@@ -379,6 +379,9 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
             "--screenshot",
             "--window-size={},{}".format(width, height),
             "--default-background-color=00000000",
+            "--force-device-scale-factor=2",
+            "--disable-web-security",
+            "--disable-features=VizDisplayCompositor",
             fn,
             cwd=tdir,
         )
