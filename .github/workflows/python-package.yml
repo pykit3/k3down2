@@ -17,10 +17,10 @@ jobs:
         # python-3.6 in it: https://github.com/actions/setup-python/issues/544#issuecomment-1320295576
         # To fix it: use os: [ubuntu-20.04] instead
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.9, "3.10", 3.11, 3.12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -62,7 +62,7 @@ jobs:
           pytest -v
         fi
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: failure()
       with:
         path: test/
@@ -73,10 +73,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.9, "3.10", 3.11, 3.12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
@@ -99,10 +99,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.9, "3.10", 3.11, 3.12]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v5
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
