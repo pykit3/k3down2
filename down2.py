@@ -20,16 +20,16 @@ from .syntax_highlight import code_to_html
 
 logger = logging.getLogger(__name__)
 
-zhihu_equation_url_fmt = ('https://www.zhihu.com/equation'
-                          '?tex={texurl}{align}'
-                          )
+zhihu_equation_url_fmt = "https://www.zhihu.com/equation?tex={texurl}{align}"
 
-zhihu_equation_fmt = ('<img src="https://www.zhihu.com/equation'
-                      '?tex={texurl}{align}"'
-                      ' alt="{tex}{altalign}"'
-                      ' class="ee_img'
-                      ' tr_noresize"'
-                      ' eeimg="1">')
+zhihu_equation_fmt = (
+    '<img src="https://www.zhihu.com/equation'
+    '?tex={texurl}{align}"'
+    ' alt="{tex}{altalign}"'
+    ' class="ee_img'
+    ' tr_noresize"'
+    ' eeimg="1">'
+)
 
 
 def convert(input_typ, input, output_typ, opt=None):
@@ -51,13 +51,14 @@ def tex_to_zhihu_compatible(tex):
     - ``>`` in img alt mess up the next escaped brace: ``\{ q > 1 \} --> \{ q > 1 }``.
     """
 
-    tex = re.sub(r'\n', '', tex)
-    tex = tex.replace(r'>', r'\gt')
+    tex = re.sub(r"\n", "", tex)
+    tex = tex.replace(r">", r"\gt")
     texurl = urllib.parse.quote(tex)
     return tex, texurl
 
+
 def tex_to_zhihu_url(tex, block):
-    '''
+    """
     Convert tex source to a url linking to a svg on zhihu.
     www.zhihu.com/equation is a public api to render tex into svg.
 
@@ -69,15 +70,15 @@ def tex_to_zhihu_url(tex, block):
 
     Returns:
         string of a ``<img>`` tag.
-    '''
+    """
 
     tex, texurl = tex_to_zhihu_compatible(tex)
 
     if block:
         # zhihu use double back slash to center-align an equation.
-        align = '%5C%5C'
+        align = "%5C%5C"
     else:
-        align = ''
+        align = ""
 
     url = zhihu_equation_url_fmt.format(
         texurl=texurl,
@@ -88,7 +89,7 @@ def tex_to_zhihu_url(tex, block):
 
 
 def tex_to_zhihu(tex, block):
-    '''
+    """
     Convert tex source to a img tag link to a svg on zhihu.
     www.zhihu.com/equation is a public api to render tex into svg.
 
@@ -100,17 +101,17 @@ def tex_to_zhihu(tex, block):
 
     Returns:
         string of a ``<img>`` tag.
-    '''
+    """
 
     tex, texurl = tex_to_zhihu_compatible(tex)
 
     if block:
         # zhihu use double back slash to center-align an equation.
-        align = '%5C%5C'
-        altalign = '\\\\'
+        align = "%5C%5C"
+        altalign = "\\\\"
     else:
-        align = ''
-        altalign = ''
+        align = ""
+        altalign = ""
 
     url = zhihu_equation_fmt.format(
         tex=tex,
@@ -211,7 +212,6 @@ subscripts = {
     "u": "ᵤ",
     "v": "ᵥ",
     "x": "ₓ",
-
 }
 
 
@@ -223,15 +223,15 @@ def all_in(chars, cate):
 
 
 def tex_to_plain(tex):
-    '''
+    """
     Try hard converting tex to unicode plain text.
-    '''
+    """
 
     for reg, cate in (
-            (r'_\{([^}]*?)\}', subscripts),
-            (r'[\^]\{([^}]*?)\}', superscripts),
-            (r'_(.)', subscripts),
-            (r'[\^](.)', superscripts),
+        (r"_\{([^}]*?)\}", subscripts),
+        (r"[\^]\{([^}]*?)\}", superscripts),
+        (r"_(.)", subscripts),
+        (r"[\^](.)", superscripts),
     ):
         pieces = []
         while True:
@@ -241,21 +241,21 @@ def tex_to_plain(tex):
                 if all_in(chars, cate):
                     chars = [cate[x] for x in chars]
                 else:
-                    chars = tex[match.start():match.end()]
-                pieces.append(tex[:match.start()])
-                pieces.append(''.join(chars))
-                tex = tex[match.end():]
+                    chars = tex[match.start() : match.end()]
+                pieces.append(tex[: match.start()])
+                pieces.append("".join(chars))
+                tex = tex[match.end() :]
             else:
                 pieces.append(tex)
                 break
 
-        tex = ''.join(pieces)
+        tex = "".join(pieces)
 
     return LatexNodes2Text().latex_to_text(tex)
 
 
 def tex_to_img(tex, block, typ):
-    '''
+    """
     Convert tex source to an image.
 
     Args:
@@ -268,16 +268,16 @@ def tex_to_img(tex, block, typ):
 
     Returns:
         bytes of png data.
-    '''
+    """
 
-    input_type = 'tex_block'
+    input_type = "tex_block"
     if not block:
-        input_type = 'tex_inline'
+        input_type = "tex_inline"
     return convert(input_type, tex, typ)
 
 
 def download(url):
-    '''
+    """
     Download content from ``url`` and return the responded data.
     If ``outputfn`` is specified, it also saves the data into ``outputfn``.
 
@@ -286,7 +286,7 @@ def download(url):
 
     Returns:
         bytes of downloaded data.
-    '''
+    """
 
     filedata = urllib.request.urlopen(url)
     datatowrite = filedata.read()
@@ -294,7 +294,7 @@ def download(url):
 
 
 def web_to_img(pagefn, typ):
-    '''
+    """
     Render a web page, which could be html, svg etc into image.
     It uses a headless chrome to render the page.
     Requirement: Chrome, imagemagick
@@ -306,15 +306,15 @@ def web_to_img(pagefn, typ):
 
     Returns:
         bytes of the png data
-    '''
+    """
 
-    intyp = pagefn.rsplit('.')[-1]
+    intyp = pagefn.rsplit(".")[-1]
     page = fread(pagefn)
     return render_to_img(intyp, page, typ)
 
 
 def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
-    '''
+    """
     Render content that is renderable in chrome to image.
     Such as html, svg etc into image.
     It uses a headless chrome to render the page.
@@ -335,10 +335,13 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
 
     Returns:
         bytes of the png data
-    '''
+    """
 
-    if 'html' in mime:
-        input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
+    if "html" in mime:
+        input = (
+            r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
+            + input
+        )
 
         # Only for html page we need to add asset_base url.
         if asset_base is not None:
@@ -356,8 +359,8 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
             suffix = k
             break
 
-    chrome = 'google-chrome'
-    if sys.platform == 'darwin':
+    chrome = "google-chrome"
+    if sys.platform == "darwin":
         # mac
         chrome = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 
@@ -365,10 +368,10 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         # Write page content into a temp file.
         # Since chrome does not recoganize the `<base>` tag encoded in a
         # data-uri.
-        fn = os.path.join(tdir, 'xxx.' + suffix)
-        flags = 'w'
+        fn = os.path.join(tdir, "xxx." + suffix)
+        flags = "w"
         if isinstance(input, bytes):
-            flags = 'wb'
+            flags = "wb"
         with open(fn, flags) as f:
             f.write(input)
 
@@ -387,11 +390,11 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
             cwd=tdir,
         )
 
-        if typ == 'png':
+        if typ == "png":
             moreargs = []
         else:
             # flatten alpha channel
-            moreargs = ['-background', 'white', '-flatten', '-alpha', 'off']
+            moreargs = ["-background", "white", "-flatten", "-alpha", "off"]
 
         # crop to visible area
         _, out, _ = k3proc.command_ex(
@@ -407,7 +410,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
     return out
 
 
-html_style = '''
+html_style = """
 <style type="text/css" media="screen">
     table {
         display: block;
@@ -449,11 +452,11 @@ html_style = '''
         font-family: "SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,"PingFang SC", "Microsoft YaHei",monospace;
     }
 </style>
-'''
+"""
 
 
 def md_to_html(md):
-    '''
+    """
     Build markdown source into html.
 
     Args:
@@ -461,12 +464,14 @@ def md_to_html(md):
 
     Returns:
         str of html
-    '''
+    """
 
     _, html, _ = k3proc.command_ex(
         "pandoc",
-        "-f", "markdown",
-        "-t", "html",
+        "-f",
+        "markdown",
+        "-t",
+        "html",
         input=md,
     )
 
@@ -474,7 +479,7 @@ def md_to_html(md):
 
 
 def mdtable_to_barehtml(md):
-    '''
+    """
     Build markdown table into html without style.
 
     Args:
@@ -482,7 +487,7 @@ def mdtable_to_barehtml(md):
 
     Returns:
         str of html
-    '''
+    """
 
     # A table with wide column will cause pandoc to produce ``colgroup`` tag, which is not recognized by zhihu.
     # Reported in:
@@ -493,17 +498,20 @@ def mdtable_to_barehtml(md):
 
     _, html, _ = k3proc.command_ex(
         "pandoc",
-        "-f", "markdown",
-        "-t", "html",
-        "--column", "100000",
+        "-f",
+        "markdown",
+        "-t",
+        "html",
+        "--column",
+        "100000",
         input=md,
     )
-    lines = html.strip().split('\n')
-    lines = [x for x in lines
-             if x not in ('<thead>', '</thead>', '<tbody>', '</tbody>')
-             ]
+    lines = html.strip().split("\n")
+    lines = [
+        x for x in lines if x not in ("<thead>", "</thead>", "<tbody>", "</tbody>")
+    ]
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 def mermaid_to_svg(mmd):
@@ -523,22 +531,27 @@ def mermaid_to_svg(mmd):
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-dev-shm-usage",
-                "--disable-gpu"
+                "--disable-gpu",
             ]
         }
 
         config_file_path = os.path.join(tdir, "config.json")
-        with open(config_file_path, 'w') as f:
+        with open(config_file_path, "w") as f:
             f.write(json.dumps(puppeteer_config))
 
         k3proc.command_ex(
-            "npm", "exec", "--",
+            "npm",
+            "exec",
+            "--",
             "mmdc",
-            "-o", output_path,
-            "--puppeteerConfigFile", config_file_path,
+            "-o",
+            output_path,
+            "--puppeteerConfigFile",
+            config_file_path,
             input=mmd,
         )
         return fread(output_path)
+
 
 def graphviz_to_img(gv, typ):
     """
@@ -550,7 +563,7 @@ def graphviz_to_img(gv, typ):
 
     _, out, _ = k3proc.command_ex(
         "dot",
-        "-T"+ typ,
+        "-T" + typ,
         input=to_bytes(gv),
         text=False,
     )
@@ -560,7 +573,7 @@ def graphviz_to_img(gv, typ):
 def to_bytes(s):
     if isinstance(s, bytes):
         return s
-    return bytes(s, 'utf-8')
+    return bytes(s, "utf-8")
 
 
 def pjoin(*p):
@@ -568,56 +581,44 @@ def pjoin(*p):
 
 
 def fread(*p):
-    with open(os.path.join(*p), 'r') as f:
+    with open(os.path.join(*p), "r") as f:
         return f.read()
 
 
 mappings = {
-    ('md', 'html'): md_to_html,
-    ('md', 'jpg'): 'html',
-    ('md', 'png'): 'html',
-
-    ('html', 'jpg'): lambda x, **kwargs: render_to_img('html', x, 'jpg', **kwargs),
-    ('html', 'png'): lambda x, **kwargs: render_to_img('html', x, 'png', **kwargs),
-
+    ("md", "html"): md_to_html,
+    ("md", "jpg"): "html",
+    ("md", "png"): "html",
+    ("html", "jpg"): lambda x, **kwargs: render_to_img("html", x, "jpg", **kwargs),
+    ("html", "png"): lambda x, **kwargs: render_to_img("html", x, "png", **kwargs),
     # markdown table
-    ('table', 'html'): mdtable_to_barehtml,
-    ('table', 'jpg'): 'html',
-    ('table', 'png'): 'html',
-
-    ('mermaid', 'svg'): mermaid_to_svg,
-    ('mermaid', 'jpg'): 'svg',
-    ('mermaid', 'png'): 'svg',
-
-    ('graphviz', 'svg'): lambda x: graphviz_to_img(x, 'svg'),
-    ('graphviz', 'jpg'): lambda x: graphviz_to_img(x, 'jpg'),
-    ('graphviz', 'png'): lambda x: graphviz_to_img(x, 'png'),
-
-    ('tex_block', 'url'): lambda x: tex_to_zhihu_url(x, True),
-    ('tex_inline', 'url'): lambda x: tex_to_zhihu_url(x, False),
-    ('tex_block', 'imgtag'): lambda x: tex_to_zhihu(x, True),
-    ('tex_inline', 'imgtag'): lambda x: tex_to_zhihu(x, False),
-
-    ('url', 'jpg'): download,
-    ('url', 'png'): download,
-    ('url', 'svg'): download,
-    ('url', 'html'): download,
-
-    ('tex_block', 'jpg'): 'svg',
-    ('tex_inline', 'jpg'): 'svg',
-    ('tex_block', 'png'): 'svg',
-    ('tex_inline', 'png'): 'svg',
-
-    ('tex_block', 'svg'): 'url',
-    ('tex_inline', 'svg'): 'url',
-
-    ('tex_inline', 'plain'): tex_to_plain,
-
-    ('svg', 'jpg'): lambda x: render_to_img('svg', x, 'jpg'),
-    ('svg', 'png'): lambda x: render_to_img('svg', x, 'png'),
-
-    ('code', 'html'): code_to_html,
-    ('code', 'jpg'): 'html',
-    ('code', 'png'): 'html',
-
+    ("table", "html"): mdtable_to_barehtml,
+    ("table", "jpg"): "html",
+    ("table", "png"): "html",
+    ("mermaid", "svg"): mermaid_to_svg,
+    ("mermaid", "jpg"): "svg",
+    ("mermaid", "png"): "svg",
+    ("graphviz", "svg"): lambda x: graphviz_to_img(x, "svg"),
+    ("graphviz", "jpg"): lambda x: graphviz_to_img(x, "jpg"),
+    ("graphviz", "png"): lambda x: graphviz_to_img(x, "png"),
+    ("tex_block", "url"): lambda x: tex_to_zhihu_url(x, True),
+    ("tex_inline", "url"): lambda x: tex_to_zhihu_url(x, False),
+    ("tex_block", "imgtag"): lambda x: tex_to_zhihu(x, True),
+    ("tex_inline", "imgtag"): lambda x: tex_to_zhihu(x, False),
+    ("url", "jpg"): download,
+    ("url", "png"): download,
+    ("url", "svg"): download,
+    ("url", "html"): download,
+    ("tex_block", "jpg"): "svg",
+    ("tex_inline", "jpg"): "svg",
+    ("tex_block", "png"): "svg",
+    ("tex_inline", "png"): "svg",
+    ("tex_block", "svg"): "url",
+    ("tex_inline", "svg"): "url",
+    ("tex_inline", "plain"): tex_to_plain,
+    ("svg", "jpg"): lambda x: render_to_img("svg", x, "jpg"),
+    ("svg", "png"): lambda x: render_to_img("svg", x, "png"),
+    ("code", "html"): code_to_html,
+    ("code", "jpg"): "html",
+    ("code", "png"): "html",
 }
