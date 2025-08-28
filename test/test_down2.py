@@ -211,6 +211,7 @@ X = \begin{bmatrix}
 
             sim = cmp_image(os.path.join(d, frm, 'want.' + typ),
                             os.path.join(d, frm, gotfn))
+
             self.assertGreater(sim, 0.8)
 
             rm(d, frm, gotfn)
@@ -418,6 +419,7 @@ def cmp_image(want, got):
 
     da = skimage.io.imread(want)
     db = skimage.io.imread(got)
+
     if da.shape != db.shape:
         k3proc.command_ex(
             'convert',
@@ -426,6 +428,16 @@ def cmp_image(want, got):
             got, got
         )
         db = skimage.io.imread(got)
+
+
+    # fix different channel issues.
+    if len(da.shape) == 3 and da.shape[2] == 4:
+        # remove alpha channel, keep rgb
+        da = da[:, :, :3]
+    if len(db.shape) == 3 and db.shape[2] == 4:
+        # remove alpha channel, keep rgb
+        db = db[:, :, :3]
+
 
     img1 = skimage.img_as_int(da)
     img2 = skimage.img_as_int(db)
@@ -444,6 +456,7 @@ def cmp_image(want, got):
         # channel_axis=2 specifies img.shape[2] specifies the number of channels
         p = ssim(img1, img2, channel_axis=2)
 
+    print("similarity(want/got):", want, got,  p)
     return p
 
 
