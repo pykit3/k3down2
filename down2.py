@@ -7,6 +7,7 @@ import tempfile
 import logging
 import re
 import sys
+import json
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -516,10 +517,25 @@ def mermaid_to_svg(mmd):
 
     with tempfile.TemporaryDirectory() as tdir:
         output_path = os.path.join(tdir, "mmd.svg")
+
+        puppeteer_config = {
+            "args": [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu"
+            ]
+        }
+
+        config_file_path = os.path.join(tdir, "config.json")
+        with open(config_file_path, 'w') as f:
+            f.write(json.dumps(puppeteer_config))
+
         k3proc.command_ex(
             "npm", "exec", "--",
             "mmdc",
             "-o", output_path,
+            "--puppeteerConfigFile", config_file_path,
             input=mmd,
         )
         return fread(output_path)
