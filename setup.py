@@ -15,6 +15,7 @@ setuptools.setup(
     keywords=["markdown", "python", "tex"],
     python_requires=">=3.0",
     install_requires=[
+        "setuptools",
         "k3ut~=0.1.7",
         "k3proc~=0.2.10",
         "pylatexenc~=2.8",
