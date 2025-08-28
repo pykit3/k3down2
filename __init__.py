@@ -11,7 +11,7 @@ It depends on:
 
 """
 
-__version__ = "0.1.18"
+__version__ = "0.1.19"
 __name__ = "k3down2"
 
 from .down2 import convert
