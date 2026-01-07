@@ -337,10 +337,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
     """
 
     if "html" in mime:
-        input = (
-            r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-            + input
-        )
+        input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
 
         # Only for html page we need to add asset_base url.
         if asset_base is not None:
@@ -506,9 +503,7 @@ def mdtable_to_barehtml(md):
         input=md,
     )
     lines = html.strip().split("\n")
-    lines = [
-        x for x in lines if x not in ("<thead>", "</thead>", "<tbody>", "</tbody>")
-    ]
+    lines = [x for x in lines if x not in ("<thead>", "</thead>", "<tbody>", "</tbody>")]
 
     return "\n".join(lines)
 

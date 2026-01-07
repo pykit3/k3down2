@@ -281,9 +281,7 @@ X = \begin{bmatrix}
             data = k3down2.render_to_img(frm_typ, inp, to, **opts)
             fwrite(d, frm, gotfn, data)
 
-            sim = cmp_image(
-                os.path.join(d, frm, "want." + typ), os.path.join(d, frm, gotfn)
-            )
+            sim = cmp_image(os.path.join(d, frm, "want." + typ), os.path.join(d, frm, gotfn))
 
             self.assertGreater(sim, 0.8)
 

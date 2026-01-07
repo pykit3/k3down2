@@ -108,9 +108,7 @@ def code_to_html(text):
 
     try:
         lexer = get_lexer_by_name(lang, stripall=True)
-        formatter = HtmlFormatter(
-            noclasses=True, linenos=linenos, style=style, prestyles=prestyles
-        )
+        formatter = HtmlFormatter(noclasses=True, linenos=linenos, style=style, prestyles=prestyles)
         code = highlight(text, lexer, formatter)
         if linenos:
             return '<div class="highlight-wrapper">%s</div>\n' % code

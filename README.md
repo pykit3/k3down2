@@ -1,7 +1,6 @@
 # k3down2
 
-[![Build Status](https://travis-ci.com/pykit3/k3down2.svg?branch=master)](https://travis-ci.com/pykit3/k3down2)
-![Python package](https://github.com/pykit3/k3down2/workflows/Python%20package/badge.svg)
+[![Action-CI](https://github.com/pykit3/k3down2/actions/workflows/python-package.yml/badge.svg)](https://github.com/pykit3/k3down2/actions/workflows/python-package.yml)
 [![Documentation Status](https://readthedocs.org/projects/k3down2/badge/?version=stable)](https://k3down2.readthedocs.io/en/stable/?badge=stable)
 [![Package](https://img.shields.io/pypi/pyversions/k3down2)](https://pypi.org/project/k3down2)
 
