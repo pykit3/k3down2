@@ -38,6 +38,8 @@ dev = [
     "pytest>=7.0",
     "ruff",
     "coverage",
+    "k3ut",
+    "scikit-image",
 ]
 publish = [
     "build",
