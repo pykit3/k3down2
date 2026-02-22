@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import atexit
 import io
 import json
 import logging
@@ -22,6 +23,28 @@ from .syntax_highlight import code_to_html
 
 
 logger = logging.getLogger(__name__)
+
+_playwright = None
+_browser = None
+
+
+def _get_browser():
+    global _playwright, _browser
+    if _browser is None:
+        _playwright = sync_playwright().start()
+        _browser = _playwright.chromium.launch()
+        atexit.register(_shutdown_browser)
+    return _browser
+
+
+def _shutdown_browser():
+    global _playwright, _browser
+    if _browser is not None:
+        _browser.close()
+        _browser = None
+    if _playwright is not None:
+        _playwright.stop()
+        _playwright = None
 
 zhihu_equation_url_fmt = "https://www.zhihu.com/equation?tex={texurl}{align}"
 
@@ -358,16 +381,15 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         with open(fn, flags) as f:
             f.write(input)
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch()
-            page = browser.new_page(
-                viewport={"width": width, "height": height},
-                device_scale_factor=2,
-            )
-            page.goto("file://" + fn)
+        browser = _get_browser()
+        page = browser.new_page(
+            viewport={"width": width, "height": height},
+            device_scale_factor=2,
+        )
+        page.goto("file://" + fn)
 
-            png_data = page.screenshot(omit_background=True)
-            browser.close()
+        png_data = page.screenshot(omit_background=True)
+        page.close()
 
     img = Image.open(io.BytesIO(png_data))
 
