@@ -46,6 +46,7 @@ def _shutdown_browser():
         _playwright.stop()
         _playwright = None
 
+
 zhihu_equation_url_fmt = "https://www.zhihu.com/equation?tex={texurl}{align}"
 
 zhihu_equation_fmt = (
