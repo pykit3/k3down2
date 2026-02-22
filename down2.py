@@ -314,7 +314,7 @@ def download(url):
         bytes of downloaded data.
     """
 
-    filedata = urllib.request.urlopen(url)
+    filedata = urllib.request.urlopen(url, timeout=30)
     datatowrite = filedata.read()
     return datatowrite
 
