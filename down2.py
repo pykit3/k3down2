@@ -61,7 +61,7 @@ zhihu_equation_fmt = (
 )
 
 
-def convert(input_typ: str, input: str | bytes, output_typ: str, opt: dict[str, dict] | None = None) -> str | bytes:
+def convert(input_typ: str, content: str | bytes, output_typ: str, opt: dict[str, dict] | None = None) -> str | bytes:
     conv = mappings.get((input_typ, output_typ))
     if conv is None:
         raise ValueError(f"unsupported conversion: {input_typ} -> {output_typ}")
@@ -69,10 +69,10 @@ def convert(input_typ: str, input: str | bytes, output_typ: str, opt: dict[str, 
         kwargs = {}
         if opt is not None and input_typ in opt:
             kwargs = opt[input_typ]
-        return conv(input, **kwargs)
+        return conv(content, **kwargs)
     else:
         #  indirect convertion
-        inp = convert(input_typ, input, conv, opt=opt)
+        inp = convert(input_typ, content, conv, opt=opt)
         return convert(conv, inp, output_typ, opt=opt)
 
 
@@ -322,7 +322,7 @@ def web_to_img(pagefn: str, typ: str) -> bytes:
 
 
 def render_to_img(
-    mime: str, input: str | bytes, typ: str, width: int = 1000, height: int = 2000, asset_base: str | None = None
+    mime: str, content: str | bytes, typ: str, width: int = 1000, height: int = 2000, asset_base: str | None = None
 ) -> bytes:
     """
     Render content that is renderable in a browser to image.
@@ -332,7 +332,7 @@ def render_to_img(
     Args:
         mime(str): a full mime type such as ``image/jpeg`` or a shortcut ``jpg``.
 
-        input(str): content of the input, such as jpeg data or svg source file.
+        content(str): content to render, such as jpeg data or svg source.
 
         typ(string): specifies output image type such as "png", "jpg"
 
@@ -347,11 +347,11 @@ def render_to_img(
     """
 
     if "html" in mime:
-        input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
+        content = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + content
 
         if asset_base is not None:
             base_uri = pathlib.Path(asset_base).as_uri()
-            input = '<base href="{}/">'.format(base_uri) + input
+            content = '<base href="{}/">'.format(base_uri) + content
 
     m = mimetypes.get(mime) or mime
     suffix = mime_to_suffix.get(m, mime)
@@ -359,10 +359,10 @@ def render_to_img(
     with tempfile.TemporaryDirectory() as tdir:
         fn = os.path.join(tdir, "xxx." + suffix)
         flags = "w"
-        if isinstance(input, bytes):
+        if isinstance(content, bytes):
             flags = "wb"
         with open(fn, flags) as f:
-            f.write(input)
+            f.write(content)
 
         browser = _get_browser()
         page = browser.new_page(
