@@ -473,6 +473,8 @@ X = \begin{bmatrix}
         sim = cmp_image(os.path.join(d, "want.jpg"), os.path.join(d, "got.jpg"))
         self.assertGreater(sim, 0.75)
 
+        rm(d, "got.jpg")
+
 
 def normalize_pandoc_output(want, got):
     #  pandoc may output different style html:
