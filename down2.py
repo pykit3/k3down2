@@ -321,6 +321,31 @@ def web_to_img(pagefn: str, typ: str) -> bytes:
     return render_to_img(intyp, page, typ)
 
 
+def _trim_and_convert(png_data: bytes, typ: str) -> bytes:
+    """Trim whitespace borders from a screenshot and convert to the target format."""
+    img = Image.open(io.BytesIO(png_data))
+
+    # Trim borders matching the corner pixel color (like ImageMagick -trim).
+    bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
+    diff = ImageChops.difference(img, bg)
+    bbox = diff.getbbox()
+    if bbox:
+        img = img.crop(bbox)
+
+    buf = io.BytesIO()
+    if typ == "png":
+        img.save(buf, format="PNG")
+    else:
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        if img.mode == "RGBA":
+            background.paste(img, mask=img.split()[3])
+        else:
+            background.paste(img)
+        background.save(buf, format="JPEG")
+
+    return buf.getvalue()
+
+
 def render_to_img(
     mime: str, content: str | bytes, typ: str, width: int = 1000, height: int = 2000, asset_base: str | None = None
 ) -> bytes:
@@ -378,28 +403,7 @@ def render_to_img(
         png_data = page.screenshot(omit_background=True)
         page.close()
 
-    img = Image.open(io.BytesIO(png_data))
-
-    # Trim borders matching the corner pixel color (like ImageMagick -trim).
-    # getbbox() alone fails for RGB images where the background is opaque white.
-    bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
-    diff = ImageChops.difference(img, bg)
-    bbox = diff.getbbox()
-    if bbox:
-        img = img.crop(bbox)
-
-    buf = io.BytesIO()
-    if typ == "png":
-        img.save(buf, format="PNG")
-    else:
-        background = Image.new("RGB", img.size, (255, 255, 255))
-        if img.mode == "RGBA":
-            background.paste(img, mask=img.split()[3])
-        else:
-            background.paste(img)
-        background.save(buf, format="JPEG")
-
-    return buf.getvalue()
+    return _trim_and_convert(png_data, typ)
 
 
 html_style = """
