@@ -27,6 +27,8 @@ classifiers = [
 dependencies = [
     "pylatexenc",
     "k3proc",
+    "playwright",
+    "Pillow",
 ]
 
 [project.urls]
