@@ -88,6 +88,15 @@ def tex_to_zhihu_compatible(tex: str) -> tuple[str, str]:
     return tex, texurl
 
 
+def _zhihu_tex_params(tex: str, block: bool) -> dict[str, str]:
+    """Prepare shared parameters for zhihu equation formatting."""
+    tex, texurl = tex_to_zhihu_compatible(tex)
+    # zhihu uses double backslash to center-align a block equation.
+    align = "%5C%5C" if block else ""
+    altalign = "\\\\" if block else ""
+    return {"tex": tex, "texurl": texurl, "align": align, "altalign": altalign}
+
+
 def tex_to_zhihu_url(tex: str, block: bool) -> str:
     """
     Convert tex source to a url linking to a svg on zhihu.
@@ -103,20 +112,8 @@ def tex_to_zhihu_url(tex: str, block: bool) -> str:
         string of a ``<img>`` tag.
     """
 
-    tex, texurl = tex_to_zhihu_compatible(tex)
-
-    if block:
-        # zhihu use double back slash to center-align an equation.
-        align = "%5C%5C"
-    else:
-        align = ""
-
-    url = zhihu_equation_url_fmt.format(
-        texurl=texurl,
-        align=align,
-    )
-
-    return url
+    p = _zhihu_tex_params(tex, block)
+    return zhihu_equation_url_fmt.format(texurl=p["texurl"], align=p["align"])
 
 
 def tex_to_zhihu(tex: str, block: bool) -> str:
@@ -134,24 +131,8 @@ def tex_to_zhihu(tex: str, block: bool) -> str:
         string of a ``<img>`` tag.
     """
 
-    tex, texurl = tex_to_zhihu_compatible(tex)
-
-    if block:
-        # zhihu use double back slash to center-align an equation.
-        align = "%5C%5C"
-        altalign = "\\\\"
-    else:
-        align = ""
-        altalign = ""
-
-    url = zhihu_equation_fmt.format(
-        tex=tex,
-        texurl=texurl,
-        align=align,
-        altalign=altalign,
-    )
-
-    return url
+    p = _zhihu_tex_params(tex, block)
+    return zhihu_equation_fmt.format(**p)
 
 
 superscripts = {
