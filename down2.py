@@ -14,7 +14,6 @@ import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
-from html import escape as html_escape
 
 from PIL import Image, ImageChops
 from playwright.sync_api import Browser, sync_playwright
