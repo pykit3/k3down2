@@ -391,7 +391,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         )
         page.goto("file://" + fn)
 
-        content_height = page.evaluate("document.body.scrollHeight")
+        content_height = page.evaluate("document.documentElement.scrollHeight")
         if content_height > height:
             page.set_viewport_size({"width": width, "height": content_height})
 
