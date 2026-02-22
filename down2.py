@@ -60,7 +60,9 @@ zhihu_equation_fmt = (
 
 
 def convert(input_typ, input, output_typ, opt=None):
-    conv = mappings[(input_typ, output_typ)]
+    conv = mappings.get((input_typ, output_typ))
+    if conv is None:
+        raise ValueError(f"unsupported conversion: {input_typ} -> {output_typ}")
     if callable(conv):
         kwargs = {}
         if opt is not None and input_typ in opt:
