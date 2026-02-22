@@ -136,6 +136,21 @@ class TestTex(unittest.TestCase):
         self.assertEqual(want, got)
         self.assertEqual(wanturl, goturl)
 
+    def test_tex_to_zhihu_compatible_preserves_escaped_gt(self):
+        cases = [
+            # already-escaped \> should not become \\gt
+            (r"a \> b", r"a \> b"),
+            # arrow -> should not become -\gt
+            (r"a -> b", r"a -\gt b"),
+            # standalone > still replaced
+            (r"x > 1", r"x \gt 1"),
+            # multiple unescaped >
+            (r"a > b > c", r"a \gt b \gt c"),
+        ]
+        for tex, want in cases:
+            got, _ = k3down2.tex_to_zhihu_compatible(tex)
+            self.assertEqual(want, got, tex)
+
     def test_tex_to_zhihu(self):
         big = r"""
 X = \begin{bmatrix}
