@@ -113,5 +113,5 @@ def code_to_html(text):
         if linenos:
             return '<div class="highlight-wrapper">%s</div>\n' % code
         return code
-    except BaseException:
+    except Exception:
         return '<pre class="%s"><code>%s</code></pre>\n' % (lang, escape(text))
