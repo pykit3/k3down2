@@ -29,6 +29,7 @@ dependencies = [
     "k3proc",
     "playwright",
     "Pillow",
+    "pygments",
 ]
 
 [project.urls]
@@ -41,6 +42,7 @@ dev = [
     "ruff",
     "coverage",
     "k3ut",
+    "numpy",
     "scikit-image",
 ]
 publish = [
