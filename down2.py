@@ -318,9 +318,8 @@ def download(url: str) -> bytes:
         bytes of downloaded data.
     """
 
-    filedata = urllib.request.urlopen(url, timeout=30)
-    datatowrite = filedata.read()
-    return datatowrite
+    resp = urllib.request.urlopen(url, timeout=30)
+    return resp.read()
 
 
 def web_to_img(pagefn: str, typ: str) -> bytes:
