@@ -968,3 +968,5 @@ mimetypes = {
     "zirz": "application/vnd.zul",
     "zmm": "application/vnd.handheld-entertainment+xml",
 }
+
+mime_to_suffix = {v: k for k, v in mimetypes.items()}

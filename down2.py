@@ -20,7 +20,7 @@ from playwright.sync_api import Browser, sync_playwright
 from pylatexenc.latex2text import LatexNodes2Text
 
 import k3proc
-from .mime import mimetypes
+from .mime import mime_to_suffix, mimetypes
 from .syntax_highlight import code_to_html
 
 
@@ -354,12 +354,7 @@ def render_to_img(
             input = '<base href="{}/">'.format(base_uri) + input
 
     m = mimetypes.get(mime) or mime
-
-    suffix = mime
-    for k, v in mimetypes.items():
-        if v == m:
-            suffix = k
-            break
+    suffix = mime_to_suffix.get(m, mime)
 
     with tempfile.TemporaryDirectory() as tdir:
         fn = os.path.join(tdir, "xxx." + suffix)
