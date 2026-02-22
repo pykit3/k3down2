@@ -391,7 +391,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         )
         page.goto("file://" + fn)
 
-        png_data = page.screenshot(omit_background=True)
+        png_data = page.screenshot(full_page=True, omit_background=True)
         page.close()
 
     img = Image.open(io.BytesIO(png_data))
