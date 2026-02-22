@@ -391,7 +391,11 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         )
         page.goto("file://" + fn)
 
-        png_data = page.screenshot(full_page=True, omit_background=True)
+        content_height = page.evaluate("document.body.scrollHeight")
+        if content_height > height:
+            page.set_viewport_size({"width": width, "height": content_height})
+
+        png_data = page.screenshot(omit_background=True)
         page.close()
 
     img = Image.open(io.BytesIO(png_data))
