@@ -10,6 +10,7 @@ import tempfile
 import urllib.error
 import urllib.parse
 import urllib.request
+from html import escape as html_escape
 
 from PIL import Image, ImageChops
 from playwright.sync_api import sync_playwright
@@ -339,7 +340,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
         input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
 
         if asset_base is not None:
-            input = r'<base href="file://{}/">'.format(asset_base) + input
+            input = '<base href="file://{}/">'.format(html_escape(asset_base)) + input
 
     m = mimetypes.get(mime) or mime
 
