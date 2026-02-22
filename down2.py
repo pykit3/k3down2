@@ -298,16 +298,14 @@ def download(url):
 def web_to_img(pagefn, typ):
     """
     Render a web page, which could be html, svg etc into image.
-    It uses a headless chrome to render the page.
-    Requirement: Chrome, imagemagick
 
     Args:
-        pagefn(string): path to a local file that can be rendered by chrome.
+        pagefn(string): path to a local file that can be rendered in a browser.
 
         typ(string): specify output image type such as "png", "jpg"
 
     Returns:
-        bytes of the png data
+        bytes of the image data
     """
 
     intyp = pagefn.rsplit(".")[-1]

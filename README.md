@@ -14,8 +14,7 @@ It depends on:
 
 - pandoc to render markdown snippet to html, such as tables.
 - graphviz to render graphviz to image.
-- google-chrome to render svg/html to png.
-- imagemagick to process images.
+- playwright (chromium) to render svg/html to png.
 - mmdc to convert mermaid chart to svg. See: https://mermaid-js.github.io/mermaid/#
 
 

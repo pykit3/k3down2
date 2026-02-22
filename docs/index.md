@@ -14,8 +14,6 @@ External tools required:
 
 - **pandoc** - render markdown snippets to HTML (tables, etc.)
 - **graphviz** - render graphviz diagrams to images
-- **google-chrome** - render SVG/HTML to PNG
-- **imagemagick** - process images
 - **mmdc** - convert mermaid charts to SVG ([mermaid-js](https://mermaid-js.github.io/mermaid/))
 
 ## Installation
