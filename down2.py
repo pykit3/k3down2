@@ -371,7 +371,8 @@ def render_to_img(
         input = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + input
 
         if asset_base is not None:
-            input = '<base href="file://{}/">'.format(html_escape(asset_base)) + input
+            base_uri = pathlib.Path(asset_base).as_uri()
+            input = '<base href="{}/">'.format(base_uri) + input
 
     m = mimetypes.get(mime) or mime
 
