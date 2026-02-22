@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import os
+import pathlib
 import re
 import tempfile
 import urllib.error
@@ -389,7 +390,7 @@ def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
             viewport={"width": width, "height": height},
             device_scale_factor=2,
         )
-        page.goto("file://" + fn)
+        page.goto(pathlib.Path(fn).as_uri())
 
         content_height = page.evaluate("document.documentElement.scrollHeight")
         if content_height > height:
