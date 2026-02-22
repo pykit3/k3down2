@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from __future__ import annotations
+
 import atexit
 import io
 import json
@@ -15,7 +17,7 @@ import urllib.request
 from html import escape as html_escape
 
 from PIL import Image, ImageChops
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import Browser, sync_playwright
 from pylatexenc.latex2text import LatexNodes2Text
 
 import k3proc
@@ -29,7 +31,7 @@ _playwright = None
 _browser = None
 
 
-def _get_browser():
+def _get_browser() -> Browser:
     global _playwright, _browser
     if _browser is None:
         _playwright = sync_playwright().start()
@@ -38,7 +40,7 @@ def _get_browser():
     return _browser
 
 
-def _shutdown_browser():
+def _shutdown_browser() -> None:
     global _playwright, _browser
     if _browser is not None:
         _browser.close()
@@ -60,7 +62,7 @@ zhihu_equation_fmt = (
 )
 
 
-def convert(input_typ, input, output_typ, opt=None):
+def convert(input_typ: str, input: str | bytes, output_typ: str, opt: dict[str, dict] | None = None) -> str | bytes:
     conv = mappings.get((input_typ, output_typ))
     if conv is None:
         raise ValueError(f"unsupported conversion: {input_typ} -> {output_typ}")
@@ -75,7 +77,7 @@ def convert(input_typ, input, output_typ, opt=None):
         return convert(conv, inp, output_typ, opt=opt)
 
 
-def tex_to_zhihu_compatible(tex):
+def tex_to_zhihu_compatible(tex: str) -> tuple[str, str]:
     r"""
     Convert tex to zhihu compatible format.
     - ``>`` in img alt mess up the next escaped brace: ``\{ q > 1 \} --> \{ q > 1 }``.
@@ -87,7 +89,7 @@ def tex_to_zhihu_compatible(tex):
     return tex, texurl
 
 
-def tex_to_zhihu_url(tex, block):
+def tex_to_zhihu_url(tex: str, block: bool) -> str:
     """
     Convert tex source to a url linking to a svg on zhihu.
     www.zhihu.com/equation is a public api to render tex into svg.
@@ -118,7 +120,7 @@ def tex_to_zhihu_url(tex, block):
     return url
 
 
-def tex_to_zhihu(tex, block):
+def tex_to_zhihu(tex: str, block: bool) -> str:
     """
     Convert tex source to a img tag link to a svg on zhihu.
     www.zhihu.com/equation is a public api to render tex into svg.
@@ -245,14 +247,14 @@ subscripts = {
 }
 
 
-def all_in(chars, cate):
+def all_in(chars: str, cate: dict[str, str]) -> bool:
     for c in chars:
         if c not in cate:
             return False
     return True
 
 
-def tex_to_plain(tex):
+def tex_to_plain(tex: str) -> str:
     """
     Try hard converting tex to unicode plain text.
     """
@@ -284,7 +286,7 @@ def tex_to_plain(tex):
     return LatexNodes2Text().latex_to_text(tex)
 
 
-def tex_to_img(tex, block, typ):
+def tex_to_img(tex: str, block: bool, typ: str) -> str | bytes:
     """
     Convert tex source to an image.
 
@@ -306,7 +308,7 @@ def tex_to_img(tex, block, typ):
     return convert(input_type, tex, typ)
 
 
-def download(url):
+def download(url: str) -> bytes:
     """
     Download content from ``url`` and return the responded data.
 
@@ -322,7 +324,7 @@ def download(url):
     return datatowrite
 
 
-def web_to_img(pagefn, typ):
+def web_to_img(pagefn: str, typ: str) -> bytes:
     """
     Render a web page, which could be html, svg etc into image.
 
@@ -340,7 +342,9 @@ def web_to_img(pagefn, typ):
     return render_to_img(intyp, page, typ)
 
 
-def render_to_img(mime, input, typ, width=1000, height=2000, asset_base=None):
+def render_to_img(
+    mime: str, input: str | bytes, typ: str, width: int = 1000, height: int = 2000, asset_base: str | None = None
+) -> bytes:
     """
     Render content that is renderable in a browser to image.
     Such as html, svg etc into image.
@@ -468,7 +472,7 @@ html_style = """
 """
 
 
-def md_to_html(md):
+def md_to_html(md: str) -> str:
     """
     Build markdown source into html.
 
@@ -491,7 +495,7 @@ def md_to_html(md):
     return html_style + html
 
 
-def mdtable_to_barehtml(md):
+def mdtable_to_barehtml(md: str) -> str:
     """
     Build markdown table into html without style.
 
@@ -525,7 +529,7 @@ def mdtable_to_barehtml(md):
     return "\n".join(lines)
 
 
-def mermaid_to_svg(mmd):
+def mermaid_to_svg(mmd: str) -> str:
     """
     Render mermaid to svg.
     See: https://mermaid-js.github.io/mermaid/#
@@ -564,7 +568,7 @@ def mermaid_to_svg(mmd):
         return fread(output_path)
 
 
-def graphviz_to_img(gv, typ):
+def graphviz_to_img(gv: str | bytes, typ: str) -> bytes:
     """
     Render graphviz source to image.
 
@@ -581,17 +585,17 @@ def graphviz_to_img(gv, typ):
     return out
 
 
-def to_bytes(s):
+def to_bytes(s: str | bytes) -> bytes:
     if isinstance(s, bytes):
         return s
     return bytes(s, "utf-8")
 
 
-def pjoin(*p):
+def pjoin(*p: str) -> str:
     return os.path.join(*p)
 
 
-def fread(*p):
+def fread(*p: str) -> str:
     with open(os.path.join(*p), "r") as f:
         return f.read()
 
