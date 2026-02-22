@@ -559,7 +559,7 @@ def mermaid_to_svg(mmd):
 
 def graphviz_to_img(gv, typ):
     """
-    Render graphviz to svg.
+    Render graphviz source to image.
 
     Requires:
         brew install graphviz
