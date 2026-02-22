@@ -79,7 +79,7 @@ def tex_to_zhihu_compatible(tex):
     """
 
     tex = re.sub(r"\n", "", tex)
-    tex = tex.replace(r">", r"\gt")
+    tex = re.sub(r"(?<!\\)>", r"\\gt", tex)
     texurl = urllib.parse.quote(tex)
     return tex, texurl
 
