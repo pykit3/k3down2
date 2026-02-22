@@ -281,7 +281,6 @@ def tex_to_img(tex, block, typ):
 def download(url):
     """
     Download content from ``url`` and return the responded data.
-    If ``outputfn`` is specified, it also saves the data into ``outputfn``.
 
     Args:
         url(str): the url from which to download.
