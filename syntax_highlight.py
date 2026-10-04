@@ -1,20 +1,22 @@
+from typing import ClassVar
+
 from pygments import highlight
-from pygments.lexers import get_lexer_by_name
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
 from pygments.style import Style
 from pygments.token import (
-    Keyword,
-    Name,
     Comment,
-    String,
     Error,
-    Text,
+    Keyword,
+    Literal,
+    Name,
     Number,
     Operator,
     Punctuation,
-    Literal,
+    String,
+    Text,
 )
-
+from pygments.util import ClassNotFound
 
 base00 = "#263238"
 base01 = "#2e3c43"
@@ -39,7 +41,7 @@ class Base16Style(Style):
     highlight_color = base02
     default_style = base05
 
-    styles = {
+    styles: ClassVar[dict] = {
         Text: base05,
         Error: base08,
         Comment: base03,
@@ -90,28 +92,24 @@ def code_to_html(text):
         lineheight = "1.3"
 
     prestyles = (
-        r"line-height: {} !important;"
+        rf"line-height: {lineheight} !important;"
         " margin: 0 !important;"
         " padding: 1em;"
         " white-space: pre-wrap;"
-        " background: {};"
-        " color: {};"
-    ).format(
-        lineheight,
-        style.background_color,
-        style.default_style,
+        f" background: {style.background_color};"
+        f" color: {style.default_style};"
     )
 
     if lang == "":
         text = text.strip()
-        return '<pre style="%s"><code>%s</code></pre>\n' % (prestyles, escape(text))
+        return f'<pre style="{prestyles}"><code>{escape(text)}</code></pre>\n'
 
     try:
         lexer = get_lexer_by_name(lang, stripall=True)
         formatter = HtmlFormatter(noclasses=True, linenos=linenos, style=style, prestyles=prestyles)
         code = highlight(text, lexer, formatter)
         if linenos:
-            return '<div class="highlight-wrapper">%s</div>\n' % code
+            return f'<div class="highlight-wrapper">{code}</div>\n'
         return code
-    except Exception:
-        return '<pre class="%s"><code>%s</code></pre>\n' % (lang, escape(text))
+    except ClassNotFound:
+        return f'<pre class="{lang}"><code>{escape(text)}</code></pre>\n'

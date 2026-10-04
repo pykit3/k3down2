@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 from __future__ import annotations
 
@@ -15,14 +14,13 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+import k3proc
 from PIL import Image, ImageChops
 from playwright.sync_api import Browser, sync_playwright
 from pylatexenc.latex2text import LatexNodes2Text
 
-import k3proc
 from .mime import mime_to_suffix, mimetypes
 from .syntax_highlight import code_to_html
-
 
 logger = logging.getLogger(__name__)
 
@@ -378,7 +376,7 @@ def render_to_img(
 
         if asset_base is not None:
             base_uri = pathlib.Path(asset_base).as_uri()
-            base_tag = '<base href="{}/">'.format(base_uri)
+            base_tag = f'<base href="{base_uri}/">'
             content = to_bytes(base_tag) + content
 
     m = mimetypes.get(mime) or mime

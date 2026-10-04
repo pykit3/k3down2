@@ -3,8 +3,8 @@ import re
 import unittest
 from unittest import mock
 
-import numpy
 import k3ut
+import numpy
 import skimage
 import skimage.io
 from skimage.metrics import structural_similarity as ssim
