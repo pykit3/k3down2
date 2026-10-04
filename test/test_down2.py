@@ -1,6 +1,7 @@
 import os
 import re
 import unittest
+from unittest import mock
 
 import numpy
 import k3ut
@@ -301,6 +302,29 @@ X = \begin{bmatrix}
             self.assertGreater(sim, 0.75)
 
             rm(d, frm, gotfn)
+
+    def test_render_to_img_bytes_html(self):
+        d = "test/data/render_to_img/html"
+        inp = fread(d, "input").encode("utf-8")
+
+        data = k3down2.render_to_img("html", inp, "png")
+        fwrite(d, "got.png", data)
+
+        sim = cmp_image(os.path.join(d, "want.png"), os.path.join(d, "got.png"))
+        self.assertGreater(sim, 0.75)
+
+        rm(d, "got.png")
+
+    def test_render_to_img_closes_page_on_error(self):
+        page = mock.Mock()
+        page.goto.side_effect = RuntimeError("goto failed")
+        browser = mock.Mock()
+        browser.new_page.return_value = page
+
+        with mock.patch.object(k3down2.down2, "_get_browser", return_value=browser), self.assertRaises(RuntimeError):
+            k3down2.render_to_img("svg", "<svg/>", "png")
+
+        page.close.assert_called_once_with()
 
     def test_download(self):
         url = "https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C"

@@ -357,7 +357,7 @@ def render_to_img(
     Args:
         mime(str): a full mime type such as ``image/jpeg`` or a shortcut ``jpg``.
 
-        content(str): content to render, such as jpeg data or svg source.
+        content(str | bytes): content to render, such as jpeg data or svg source. A str is encoded as UTF-8.
 
         typ(string): specifies output image type such as "png", "jpg"
 
@@ -371,22 +371,22 @@ def render_to_img(
         bytes of the image data
     """
 
+    content = to_bytes(content)
+
     if "html" in mime:
-        content = r'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + content
+        content = rb'<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>' + content
 
         if asset_base is not None:
             base_uri = pathlib.Path(asset_base).as_uri()
-            content = '<base href="{}/">'.format(base_uri) + content
+            base_tag = '<base href="{}/">'.format(base_uri)
+            content = to_bytes(base_tag) + content
 
     m = mimetypes.get(mime) or mime
     suffix = mime_to_suffix.get(m, mime)
 
     with tempfile.TemporaryDirectory() as tdir:
         fn = os.path.join(tdir, "xxx." + suffix)
-        flags = "w"
-        if isinstance(content, bytes):
-            flags = "wb"
-        with open(fn, flags) as f:
+        with open(fn, "wb") as f:
             f.write(content)
 
         browser = _get_browser()
@@ -394,14 +394,16 @@ def render_to_img(
             viewport={"width": width, "height": height},
             device_scale_factor=2,
         )
-        page.goto(pathlib.Path(fn).as_uri())
+        try:
+            page.goto(pathlib.Path(fn).as_uri())
 
-        content_height = page.evaluate("document.documentElement.scrollHeight")
-        if content_height > height:
-            page.set_viewport_size({"width": width, "height": content_height})
+            content_height = page.evaluate("document.documentElement.scrollHeight")
+            if content_height > height:
+                page.set_viewport_size({"width": width, "height": content_height})
 
-        png_data = page.screenshot(omit_background=True)
-        page.close()
+            png_data = page.screenshot(omit_background=True)
+        finally:
+            page.close()
 
     return _trim_and_convert(png_data, typ)
 
