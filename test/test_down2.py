@@ -164,6 +164,13 @@ class TestTex(unittest.TestCase):
             got = k3down2.tex_to_zhihu_compatible(tex)
             self.assertEqual(want, got, tex)
 
+    def test_tex_to_zhihu_compatible_newline(self):
+        # TeX reads a line end as a space; deleting it would form the undefined command \cdotx.
+        tex = "a \\cdot\nx"
+        want = (r"a \cdot x", "a%20%5Ccdot%20x")
+        got = k3down2.tex_to_zhihu_compatible(tex)
+        self.assertEqual(want, got)
+
     def test_tex_to_zhihu(self):
         big = r"""
 X = \begin{bmatrix}
@@ -188,12 +195,12 @@ X = \begin{bmatrix}
             (
                 big,
                 True,
-                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
+                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix} 1      & x_2    & x_2^2 \\  \vdots & \vdots & \vdots \\  1      & x_n    & x_n^2 \end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
             ),
             (
                 big,
                 False,
-                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix}1      & x_2    & x_2^2 \\\vdots & \vdots & \vdots \\1      & x_n    & x_n^2\end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
+                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix} 1      & x_2    & x_2^2 \\  \vdots & \vdots & \vdots \\  1      & x_n    & x_n^2 \end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
             ),
         ]
 
@@ -259,12 +266,12 @@ X = \begin{bmatrix}
             (
                 big,
                 True,
-                r"https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D%5C%5C",
+                r"https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D%5C%5C",
             ),
             (
                 big,
                 False,
-                r"https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D1%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C1%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%5Cend%7Bbmatrix%7D",
+                r"https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D",
             ),
         ]
 
