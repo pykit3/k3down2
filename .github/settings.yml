@@ -1,6 +1,6 @@
 _extends: gh-config
 
 repository:
-  description: convert markdown segment into easy to transfer media sucha images.
+  description: convert markdown segment into easy to transfer media such as images.
   homepage: https://blog.openacid.com
   topics: markdown, python, tex
