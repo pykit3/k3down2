@@ -152,6 +152,18 @@ class TestTex(unittest.TestCase):
             got, _ = k3down2.tex_to_zhihu_compatible(tex)
             self.assertEqual(want, got, tex)
 
+    def test_tex_to_zhihu_compatible_gt_before_letter(self):
+        cases = [
+            # A letter right after \gt would form an undefined command such as \gty.
+            (r"x>y", (r"x\gt y", "x%5Cgt%20y")),
+            (r"a>b>c", (r"a\gt b\gt c", "a%5Cgt%20b%5Cgt%20c")),
+            # A digit ends a command name, so it needs no space.
+            (r"x>1", (r"x\gt1", "x%5Cgt1")),
+        ]
+        for tex, want in cases:
+            got = k3down2.tex_to_zhihu_compatible(tex)
+            self.assertEqual(want, got, tex)
+
     def test_tex_to_zhihu(self):
         big = r"""
 X = \begin{bmatrix}

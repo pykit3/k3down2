@@ -81,6 +81,8 @@ def tex_to_zhihu_compatible(tex: str) -> tuple[str, str]:
     """
 
     tex = re.sub(r"\n", "", tex)
+    # A letter right after \gt would form a longer, undefined command such as \gty.
+    tex = re.sub(r"(?<!\\)>(?=[A-Za-z])", r"\\gt ", tex)
     tex = re.sub(r"(?<!\\)>", r"\\gt", tex)
     texurl = urllib.parse.quote(tex)
     return tex, texurl
