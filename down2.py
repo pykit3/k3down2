@@ -517,7 +517,7 @@ def mermaid_to_svg(mmd: str) -> str:
     See: https://mermaid-js.github.io/mermaid/#
 
     Requires:
-        npm install @mermaid-js/mermaid-cli
+        npm install -g @mermaid-js/mermaid-cli
     """
 
     with tempfile.TemporaryDirectory() as tdir:
@@ -537,9 +537,6 @@ def mermaid_to_svg(mmd: str) -> str:
             f.write(json.dumps(puppeteer_config))
 
         k3proc.command_ex(
-            "npm",
-            "exec",
-            "--",
             "mmdc",
             "-o",
             output_path,
