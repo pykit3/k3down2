@@ -8,9 +8,6 @@ It depends on:
 - mmdc to convert mermaid chart to svg. See: https://mermaid-js.github.io/mermaid/#
 """
 
-from importlib.metadata import version
-
-__version__ = version("k3down2")
 __name__ = "k3down2"
 
 from .down2 import (
@@ -46,3 +43,14 @@ __all__ = [
     "tex_to_zhihu_url",
     "web_to_img",
 ]
+
+
+def __getattr__(name: str) -> str:
+    # importlib.metadata takes about 20 ms to import, so it is loaded only
+    # when __version__ is read
+    if name != "__version__":
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+    from importlib.metadata import version
+
+    return version("k3down2")
