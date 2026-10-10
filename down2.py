@@ -536,12 +536,28 @@ def mermaid_to_svg(mmd: str) -> str:
         with open(config_file_path, "w") as f:
             f.write(json.dumps(puppeteer_config))
 
+        # mermaid 12 changed the default theme and look,
+        # so set them to keep the style of earlier versions.
+        # mermaid 12 also draws the text of a sequence note at fontSize, 16 by default,
+        # in a box too narrow for it. The text fits at 14.
+        mermaid_config = {
+            "theme": "default",
+            "look": "classic",
+            "fontSize": 14,
+        }
+
+        mermaid_config_path = os.path.join(tdir, "mermaid.json")
+        with open(mermaid_config_path, "w") as f:
+            f.write(json.dumps(mermaid_config))
+
         k3proc.command_ex(
             "mmdc",
             "-o",
             output_path,
             "--puppeteerConfigFile",
             config_file_path,
+            "--configFile",
+            mermaid_config_path,
             input=mmd,
         )
         return fread(output_path)
