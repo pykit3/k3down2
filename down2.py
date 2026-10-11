@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import atexit
+import html
 import io
 import json
 import logging
@@ -92,6 +93,8 @@ def tex_to_zhihu_compatible(tex: str) -> tuple[str, str]:
 def _zhihu_tex_params(tex: str, block: bool) -> dict[str, str]:
     """Prepare shared parameters for zhihu equation formatting."""
     tex, texurl = tex_to_zhihu_compatible(tex)
+    # tex fills the double-quoted alt attribute, where a raw `"` would end the attribute early.
+    tex = html.escape(tex)
     # zhihu uses double backslash to center-align a block equation.
     align = "%5C%5C" if block else ""
     altalign = "\\\\" if block else ""

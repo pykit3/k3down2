@@ -197,18 +197,43 @@ X = \begin{bmatrix}
             (
                 big,
                 True,
-                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix} 1      & x_2    & x_2^2 \\  \vdots & \vdots & \vdots \\  1      & x_n    & x_n^2 \end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
+                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D%5C%5C" alt="X = \begin{bmatrix} 1      &amp; x_2    &amp; x_2^2 \\  \vdots &amp; \vdots &amp; \vdots \\  1      &amp; x_n    &amp; x_n^2 \end{bmatrix}\\" class="ee_img tr_noresize" eeimg="1">',
             ),
             (
                 big,
                 False,
-                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix} 1      & x_2    & x_2^2 \\  \vdots & \vdots & \vdots \\  1      & x_n    & x_n^2 \end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
+                r'<img src="https://www.zhihu.com/equation?tex=X%20%3D%20%5Cbegin%7Bbmatrix%7D%201%20%20%20%20%20%20%26%20x_2%20%20%20%20%26%20x_2%5E2%20%5C%5C%20%20%5Cvdots%20%26%20%5Cvdots%20%26%20%5Cvdots%20%5C%5C%20%201%20%20%20%20%20%20%26%20x_n%20%20%20%20%26%20x_n%5E2%20%5Cend%7Bbmatrix%7D" alt="X = \begin{bmatrix} 1      &amp; x_2    &amp; x_2^2 \\  \vdots &amp; \vdots &amp; \vdots \\  1      &amp; x_n    &amp; x_n^2 \end{bmatrix}" class="ee_img tr_noresize" eeimg="1">',
             ),
         ]
 
         for tex, block, want in cases:
             got = k3down2.tex_to_zhihu(tex, block)
             self.assertEqual(want, got)
+
+    def test_tex_to_zhihu_escapes_alt(self):
+        cases = [
+            # A raw quote would end the alt attribute and turn the rest of the tex into attributes.
+            (
+                r'\text{"a"} title="x"',
+                r'<img src="https://www.zhihu.com/equation?tex=%5Ctext%7B%22a%22%7D%20title%3D%22x%22" alt="\text{&quot;a&quot;} title=&quot;x&quot;" class="ee_img tr_noresize" eeimg="1">',
+            ),
+            (
+                r"f'(x)",
+                r'<img src="https://www.zhihu.com/equation?tex=f%27%28x%29" alt="f&#x27;(x)" class="ee_img tr_noresize" eeimg="1">',
+            ),
+            (
+                r"\text{&copy} a & b",
+                r'<img src="https://www.zhihu.com/equation?tex=%5Ctext%7B%26copy%7D%20a%20%26%20b" alt="\text{&amp;copy} a &amp; b" class="ee_img tr_noresize" eeimg="1">',
+            ),
+            (
+                r"a < b",
+                r'<img src="https://www.zhihu.com/equation?tex=a%20%3C%20b" alt="a &lt; b" class="ee_img tr_noresize" eeimg="1">',
+            ),
+        ]
+
+        for tex, want in cases:
+            got = k3down2.tex_to_zhihu(tex, False)
+            self.assertEqual(want, got, tex)
 
     def test_tex_to_plain(self):
         case = [
