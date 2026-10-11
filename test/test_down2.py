@@ -406,6 +406,20 @@ X = \begin{bmatrix}
             want = f.read()
         self.assertEqual(want, data)
 
+    def test_download_closes_response_on_error(self):
+        resp = mock.MagicMock()
+        resp.__enter__.return_value = resp
+        resp.read.side_effect = TimeoutError("read timed out")
+
+        with (
+            mock.patch("urllib.request.urlopen", return_value=resp) as urlopen,
+            self.assertRaises(TimeoutError),
+        ):
+            k3down2.download("https://example.com/a.svg")
+
+        urlopen.assert_called_once_with("https://example.com/a.svg", timeout=30)
+        resp.__exit__.assert_called_once()
+
     def test_mdtable_to_barehtml(self):
         md = r"""
 | a   | b   | b   |b   |
