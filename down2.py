@@ -329,6 +329,13 @@ def _trim_and_convert(png_data: bytes, typ: str) -> bytes:
     # Trim borders matching the corner pixel color (like ImageMagick -trim).
     bg = Image.new(img.mode, img.size, img.getpixel((0, 0)))
     diff = ImageChops.difference(img, bg)
+    if img.mode == "RGBA":
+        # getbbox() of an RGBA image reads only alpha, which is equal everywhere on an opaque page.
+        # A color difference counts only where the pixel is visible.
+        r, g, b, a = diff.split()
+        color = ImageChops.lighter(ImageChops.lighter(r, g), b)
+        visible = img.getchannel("A").point(lambda v: 255 if v > 0 else 0)
+        diff = ImageChops.lighter(ImageChops.multiply(color, visible), a)
     bbox = diff.getbbox()
     if bbox:
         img = img.crop(bbox)

@@ -1,3 +1,4 @@
+import io
 import os
 import re
 import unittest
@@ -7,6 +8,7 @@ import k3ut
 import numpy
 import skimage
 import skimage.io
+from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 
 import k3down2
@@ -344,6 +346,31 @@ X = \begin{bmatrix}
             k3down2.render_to_img("svg", "<svg/>", "png")
 
         page.close.assert_called_once_with()
+
+    def test_trim_and_convert(self):
+        def png(size, bg, pixels):
+            img = Image.new("RGBA", size, bg)
+            for xy, color in pixels:
+                img.putpixel(xy, color)
+
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            return buf.getvalue()
+
+        cases = (
+            ("opaque", png((10, 10), (255, 255, 255, 255), [((5, 5), (0, 0, 0, 255))]), (0, 0, 0, 255)),
+            ("transparent", png((10, 10), (0, 0, 0, 0), [((2, 3), (255, 0, 0, 255))]), (255, 0, 0, 255)),
+            (
+                "invisible color is not content",
+                png((10, 10), (0, 0, 0, 0), [((2, 3), (255, 0, 0, 255)), ((8, 8), (255, 255, 255, 0))]),
+                (255, 0, 0, 255),
+            ),
+        )
+
+        for name, data, pixel in cases:
+            got = Image.open(io.BytesIO(k3down2.down2._trim_and_convert(data, "png")))
+            self.assertEqual((1, 1), got.size, name)
+            self.assertEqual(pixel, got.getpixel((0, 0)), name)
 
     def test_download(self):
         url = "https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C"
