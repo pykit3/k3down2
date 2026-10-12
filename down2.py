@@ -372,7 +372,7 @@ def render_to_img(
 
         typ(string): specifies output image type such as "png", "jpg"
 
-        width(int): specifies the window width to render a page. Default 1000.
+        width(int): specifies the window width to render a page. Default 1000. A wider page widens the window.
 
         height(int): specifies the window height to render a page. Default 2000.
 
@@ -407,6 +407,13 @@ def render_to_img(
         )
         try:
             page.goto(pathlib.Path(fn).as_uri())
+
+            # A page can be wider than the viewport, such as a table with a wide image.
+            # The width is set before the height is read, because a wider viewport can change the height.
+            content_width = page.evaluate("document.documentElement.scrollWidth")
+            if content_width > width:
+                width = content_width
+                page.set_viewport_size({"width": width, "height": height})
 
             content_height = page.evaluate("document.documentElement.scrollHeight")
             if content_height > height:

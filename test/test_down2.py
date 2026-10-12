@@ -361,6 +361,16 @@ X = \begin{bmatrix}
 
         rm(d, "got.png")
 
+    def test_render_to_img_wider_than_viewport(self):
+        # The div starts at the 8px margin of the body and ends past the 1000px viewport.
+        inp = '<div style="width: 1200px; height: 10px; background: black"></div>'
+
+        data = k3down2.render_to_img("html", inp, "png", width=1000)
+
+        # The screenshot is taken at 2 device pixels per CSS pixel, and the trim leaves only the div.
+        got = Image.open(io.BytesIO(data))
+        self.assertEqual((2400, 20), got.size)
+
     def test_render_to_img_closes_page_on_error(self):
         page = mock.Mock()
         page.goto.side_effect = RuntimeError("goto failed")
