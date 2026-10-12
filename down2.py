@@ -17,7 +17,8 @@ import urllib.request
 
 import k3proc
 from PIL import Image, ImageChops
-from playwright.sync_api import Browser, sync_playwright
+from playwright.sync_api import Browser, Page, sync_playwright
+from playwright.sync_api import Error as PlaywrightError
 from pylatexenc.latex2text import LatexNodes2Text
 
 from .mime import mime_to_suffix, mimetypes
@@ -363,6 +364,22 @@ def _trim_and_convert(png_data: bytes, typ: str) -> bytes:
     return buf.getvalue()
 
 
+# Chromium fails a screenshot now and then with "Unable to capture screenshot", and a later try on the same page works.
+_screenshot_tries = 3
+
+
+def _screenshot(page: Page) -> bytes:
+    """Take the screenshot of `page` with a transparent background, trying up to `_screenshot_tries` times."""
+    for _ in range(_screenshot_tries - 1):
+        try:
+            return page.screenshot(omit_background=True)
+        except PlaywrightError as e:
+            if "Unable to capture screenshot" not in e.message:
+                raise
+            logger.warning("screenshot failed, trying again: %s", e.message)
+    return page.screenshot(omit_background=True)
+
+
 def render_to_img(
     mime: str, content: str | bytes, typ: str, width: int = 1000, height: int = 2000, asset_base: str | None = None
 ) -> bytes:
@@ -425,7 +442,7 @@ def render_to_img(
             if content_height > height:
                 page.set_viewport_size({"width": width, "height": content_height})
 
-            png_data = page.screenshot(omit_background=True)
+            png_data = _screenshot(page)
         finally:
             page.close()
 

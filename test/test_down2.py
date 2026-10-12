@@ -10,6 +10,7 @@ import skimage
 import skimage.io
 from PIL import Image
 from playwright.sync_api import BrowserType
+from playwright.sync_api import Error as PlaywrightError
 from skimage.metrics import structural_similarity as ssim
 
 import k3down2
@@ -382,6 +383,56 @@ X = \begin{bmatrix}
             k3down2.render_to_img("svg", "<svg/>", "png")
 
         page.close.assert_called_once_with()
+
+    def test_render_to_img_retries_failed_capture(self):
+        buf = io.BytesIO()
+        Image.new("RGBA", (2, 1), (255, 0, 0, 255)).save(buf, format="PNG")
+        png = buf.getvalue()
+        failure = PlaywrightError(
+            "Page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot"
+        )
+
+        page = mock.Mock()
+        # The page is 0px wide and high, so render_to_img() keeps the viewport.
+        page.evaluate.return_value = 0
+        page.screenshot.side_effect = [failure, failure, png]
+        browser = mock.Mock()
+        browser.new_page.return_value = page
+
+        with mock.patch.object(k3down2.down2, "_get_browser", return_value=browser):
+            data = k3down2.render_to_img("html", "<p>x</p>", "png")
+
+        self.assertEqual(3, page.screenshot.call_count)
+        got = Image.open(io.BytesIO(data))
+        self.assertEqual((255, 0, 0, 255), got.getpixel((0, 0)))
+
+    def test_render_to_img_raises_failed_screenshot(self):
+        capture_failure = PlaywrightError(
+            "Page.screenshot: Protocol error (Page.captureScreenshot): Unable to capture screenshot"
+        )
+        timeout = PlaywrightError("Page.screenshot: Timeout 30000ms exceeded.")
+
+        # The results of the screenshots, and how many render_to_img() takes before it raises the last result.
+        cases = (
+            ([capture_failure, capture_failure, capture_failure], 3),
+            ([timeout], 1),
+        )
+
+        for results, want_calls in cases:
+            page = mock.Mock()
+            page.evaluate.return_value = 0
+            page.screenshot.side_effect = results
+            browser = mock.Mock()
+            browser.new_page.return_value = page
+
+            with (
+                mock.patch.object(k3down2.down2, "_get_browser", return_value=browser),
+                self.assertRaises(PlaywrightError) as ctx,
+            ):
+                k3down2.render_to_img("html", "<p>x</p>", "png")
+
+            self.assertIs(results[-1], ctx.exception)
+            self.assertEqual(want_calls, page.screenshot.call_count)
 
     def test_get_browser_after_launch_failure(self):
         errors = [RuntimeError("launch failed")]
