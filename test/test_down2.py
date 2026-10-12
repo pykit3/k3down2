@@ -9,6 +9,7 @@ import numpy
 import skimage
 import skimage.io
 from PIL import Image
+from playwright.sync_api import BrowserType
 from skimage.metrics import structural_similarity as ssim
 
 import k3down2
@@ -381,6 +382,27 @@ X = \begin{bmatrix}
             k3down2.render_to_img("svg", "<svg/>", "png")
 
         page.close.assert_called_once_with()
+
+    def test_get_browser_after_launch_failure(self):
+        errors = [RuntimeError("launch failed")]
+        launch = BrowserType.launch
+
+        def launch_or_fail(browser_type, *args, **kwargs):
+            if errors:
+                raise errors.pop()
+            return launch(browser_type, *args, **kwargs)
+
+        # Start without a browser, so that _get_browser() starts Playwright and launches Chromium.
+        k3down2.down2._shutdown_browser()
+
+        with mock.patch.object(BrowserType, "launch", launch_or_fail):
+            with self.assertRaisesRegex(RuntimeError, "launch failed"):
+                k3down2.down2._get_browser()
+
+            # A Playwright left running by the failed launch makes this call raise.
+            browser = k3down2.down2._get_browser()
+
+        self.assertTrue(browser.is_connected())
 
     def test_trim_and_convert(self):
         def png(size, bg, pixels):

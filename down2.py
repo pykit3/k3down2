@@ -33,7 +33,13 @@ def _get_browser() -> Browser:
     global _playwright, _browser
     if _browser is None:
         _playwright = sync_playwright().start()
-        _browser = _playwright.chromium.launch()
+        try:
+            _browser = _playwright.chromium.launch()
+        except BaseException:
+            # A started Playwright makes the next sync_playwright().start() in this thread raise.
+            _playwright.stop()
+            _playwright = None
+            raise
         atexit.register(_shutdown_browser)
     return _browser
 
