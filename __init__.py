@@ -6,6 +6,7 @@ It depends on:
 - graphviz to render graphviz to image.
 - playwright (chromium) to render svg/html to png.
 - mmdc to convert mermaid chart to svg. See: https://mermaid-js.github.io/mermaid/#
+- node with mathjax-full to render tex to svg. See: https://github.com/mathjax/MathJax-src
 """
 
 __name__ = "k3down2"
@@ -21,6 +22,7 @@ from .down2 import (
     render_to_img,
     tex_to_img,
     tex_to_plain,
+    tex_to_svg,
     tex_to_zhihu,
     tex_to_zhihu_compatible,
     tex_to_zhihu_url,
@@ -38,6 +40,7 @@ __all__ = [
     "render_to_img",
     "tex_to_img",
     "tex_to_plain",
+    "tex_to_svg",
     "tex_to_zhihu",
     "tex_to_zhihu_compatible",
     "tex_to_zhihu_url",

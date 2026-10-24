@@ -15,6 +15,7 @@ External tools required:
 - **pandoc** - render markdown snippets to HTML (tables, etc.)
 - **graphviz** - render graphviz diagrams to images
 - **mmdc** - convert mermaid charts to SVG ([mermaid-js](https://mermaid-js.github.io/mermaid/))
+- **mathjax-full** - render TeX to SVG with node ([MathJax](https://github.com/mathjax/MathJax-src))
 
 ## Installation
 

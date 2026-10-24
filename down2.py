@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import atexit
+import functools
 import html
 import io
 import json
@@ -297,6 +298,55 @@ def tex_to_img(tex: str, block: bool, typ: str) -> str | bytes:
     if not block:
         input_type = "tex_inline"
     return convert(input_type, tex, typ)
+
+
+tex2svg_path = os.path.join(os.path.dirname(__file__), "tex2svg.js")
+
+
+@functools.cache
+def _npm_global_root() -> str:
+    """Return the global node_modules of npm, where ``npm install -g`` puts a package."""
+    _, out, _ = k3proc.command_ex("npm", "root", "-g")
+    return out.strip()
+
+
+def tex_to_svg(tex: str, block: bool) -> str:
+    """
+    Render tex source to svg with MathJax 3, which draws the same glyphs as www.zhihu.com/equation.
+
+    Args:
+        tex(str): tex source
+
+        block(bool): whether to render a block(display) equation or
+            inline equation.
+
+    Returns:
+        str of svg.
+
+    Raises:
+        k3proc.CalledProcessError: if MathJax can not render ``tex``, such as for an undefined control sequence.
+            Its ``err`` holds the message of MathJax.
+
+    Requires:
+        npm install -g mathjax-full@3.2.2
+    """
+
+    # node looks for mathjax-full in the node_modules above tex2svg.js and in NODE_PATH,
+    # but not in the global node_modules of npm.
+    node_path = _npm_global_root()
+    inherited = os.environ.get("NODE_PATH")
+    if inherited:
+        node_path = inherited + os.pathsep + node_path
+
+    mode = "block" if block else "inline"
+    _, svg, _ = k3proc.command_ex(
+        "node",
+        tex2svg_path,
+        mode,
+        input=tex,
+        env={"NODE_PATH": node_path},
+    )
+    return svg
 
 
 def download(url: str) -> bytes:
@@ -663,8 +713,8 @@ mappings = {
     ("tex_inline", "jpg"): "svg",
     ("tex_block", "png"): "svg",
     ("tex_inline", "png"): "svg",
-    ("tex_block", "svg"): "url",
-    ("tex_inline", "svg"): "url",
+    ("tex_block", "svg"): lambda x: tex_to_svg(x, True),
+    ("tex_inline", "svg"): lambda x: tex_to_svg(x, False),
     ("tex_inline", "plain"): tex_to_plain,
     ("svg", "jpg"): lambda x: render_to_img("svg", x, "jpg"),
     ("svg", "png"): lambda x: render_to_img("svg", x, "png"),

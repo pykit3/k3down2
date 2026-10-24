@@ -62,5 +62,9 @@ packages = ["k3down2"]
 [tool.setuptools.package-dir]
 k3down2 = "."
 
+[tool.setuptools.package-data]
+# tex_to_svg() runs it with node.
+k3down2 = ["tex2svg.js"]
+
 [tool.ruff]
 line-length = 120

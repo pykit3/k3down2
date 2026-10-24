@@ -1,9 +1,13 @@
+import functools
+import http.server
 import io
 import os
 import re
+import threading
 import unittest
 from unittest import mock
 
+import k3proc
 import k3ut
 import numpy
 import skimage
@@ -279,6 +283,23 @@ X = \begin{bmatrix}
 
             rm(pjoin(d, gotfn))
 
+    def test_tex_to_svg(self):
+        # A display formula puts the limits of a sum below and above it, and an inline formula beside it.
+        tex = r"\sum_{i=1}^{n} i"
+
+        for name, block in (("block", True), ("inline", False)):
+            got = k3down2.tex_to_svg(tex, block)
+
+            with open(f"test/data/tex_to_svg/{name}.svg") as f:
+                want = f.read()
+            self.assertEqual(want, got, name)
+
+    def test_tex_to_svg_bad_tex(self):
+        with self.assertRaises(k3proc.CalledProcessError) as ctx:
+            k3down2.tex_to_svg(r"a \foo b", False)
+
+        self.assertEqual([r"Undefined control sequence \foo"], ctx.exception.err)
+
     def test_tex_to_zhihu_url(self):
         big = r"""
 X = \begin{bmatrix}
@@ -481,9 +502,16 @@ X = \begin{bmatrix}
             self.assertEqual(pixel, got.getpixel((0, 0)), name)
 
     def test_download(self):
-        url = "https://www.zhihu.com/equation?tex=a%20%3D%20b%5C%5C"
-
-        data = k3down2.download(url)
+        handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory="test/data")
+        with http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler) as server:
+            thread = threading.Thread(target=server.serve_forever)
+            thread.start()
+            try:
+                port = server.server_address[1]
+                data = k3down2.download(f"http://127.0.0.1:{port}/ab.svg")
+            finally:
+                server.shutdown()
+                thread.join()
 
         with open("test/data/ab.svg", "rb") as f:
             want = f.read()
