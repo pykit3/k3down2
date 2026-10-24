@@ -724,8 +724,8 @@ def normalize_pandoc_output(want, got):
 def cmp_image(want, got):
     from PIL import Image as PILImage
 
-    want_img = PILImage.open(want).convert("RGB")
-    got_img = PILImage.open(got).convert("RGB")
+    want_img = open_on_white(want)
+    got_img = open_on_white(got)
 
     # Resize got to match want dimensions if they differ
     if want_img.size != got_img.size:
@@ -746,6 +746,16 @@ def cmp_image(want, got):
 
     print("similarity(want/got):", want, got, p)
     return p
+
+
+def open_on_white(path):
+    # Paste the image on white, as a page shows it. convert("RGB") alone keeps the color stored in a transparent
+    # pixel, and the transparent PNG goldens store black there, the color of their text.
+    img = Image.open(path)
+    rgba = img.convert("RGBA")
+    white = Image.new("RGBA", rgba.size, (255, 255, 255, 255))
+    on_white = Image.alpha_composite(white, rgba)
+    return on_white.convert("RGB")
 
 
 def pjoin(*p):
