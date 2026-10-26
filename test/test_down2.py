@@ -249,6 +249,9 @@ X = \begin{bmatrix}
             (r"\mathbb{Q}^3", "ℚ³"),
             (r"\mathbb{Q}^{x+1}", "ℚˣ⁺¹"),
             (r"\sum_{1}^{x+1}(i^2)", "∑₁ˣ⁺¹(i²)"),
+            (r"a\_b", "a_b"),
+            (r"a\_{b}", "a_b"),
+            (r"a\\_1", "a\n₁"),
         ]
 
         for inp, want in case:

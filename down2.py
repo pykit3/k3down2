@@ -259,10 +259,12 @@ def tex_to_plain(tex: str) -> str:
     ):
         pieces = []
         while True:
-            match = re.search(reg, tex, flags=re.DOTALL | re.UNICODE)
+            # A backslash and the char after it, such as "\_" or "\\", are kept as they are,
+            # so an escaped "_" or "^" starts no subscript or superscript.
+            match = re.search(r"\\.|" + reg, tex, flags=re.DOTALL | re.UNICODE)
             if match:
                 chars = match.groups()[0]
-                if all_in(chars, cate):
+                if chars is not None and all_in(chars, cate):
                     chars = [cate[x] for x in chars]
                 else:
                     chars = tex[match.start() : match.end()]
