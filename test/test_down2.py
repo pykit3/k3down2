@@ -714,13 +714,39 @@ X = \begin{bmatrix}
         rm(d, "got.jpg")
 
 
-def normalize_pandoc_output(want, got):
+class TestPandocOutput(unittest.TestCase):
+    def test_normalize_table_rows(self) -> None:
+        want = (
+            '<table>\n<tr class="header"><th style="text-align: left;">a</th></tr>\n'
+            '<tr class="odd"><td>b</td></tr>\n<tr class="even"><td>c</td></tr>\n</table>'
+        )
+        for row_classes in (True, False):
+            for legacy_alignment in (True, False):
+                with self.subTest(row_classes=row_classes, legacy_alignment=legacy_alignment):
+                    got = want
+                    if not row_classes:
+                        for name in ("header", "odd", "even"):
+                            got = got.replace(f'<tr class="{name}">', "<tr>")
+                    if legacy_alignment:
+                        got = got.replace('style="text-align: left;"', 'align="left"')
+                    self.assertEqual(got, normalize_pandoc_output(want, got))
+
+    def test_preserve_other_markup(self) -> None:
+        want = '<tr class="custom"><td class="odd">expected</td></tr>'
+        got = "<tr><td>different</td></tr>"
+        self.assertEqual(want, normalize_pandoc_output(want, got))
+
+
+def normalize_pandoc_output(want: str, got: str) -> str:
     #  pandoc may output different style html:
     #  '<tab[25 chars]n<th style="text-align: left;">a</th>\n<th sty[427 chars]ble>' !=
     #  '<tab[25 chars]n<th align="left">a</th>\n<th align="right">b<[310 chars]ble>'
 
     if 'align="' in got:
         want = re.sub(r'style="text-align: (left|right|center);"', r'align="\1"', want)
+    # Newer Pandoc versions no longer add these default table-row classes.
+    if not re.search(r'<tr class="(?:header|odd|even)">', got):
+        want = re.sub(r'<tr class="(?:header|odd|even)">', "<tr>", want)
     return want
 
 
